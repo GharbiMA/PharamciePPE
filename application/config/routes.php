@@ -41,6 +41,7 @@
 $route['default_controller'] = "welcome";
 $route['404_override'] = '';
 $route ['insertP'] = "Insert";
+$route ['list'] = 'TestGrocery/pharmacie';
 
 
 /* End of file routes.php */
