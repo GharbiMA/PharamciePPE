@@ -13,8 +13,8 @@
  */
 class localite extends CI_Model {
     //put your code here
-    var $nom;
-    var $CodePostal;
+    private $nom;
+    private $CodePostal;
     function __construct() {
         parent::__construct();
         $this->load->database();

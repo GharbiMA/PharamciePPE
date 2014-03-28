@@ -13,9 +13,9 @@
  */
 class Adresse extends CI_Model {
     //put your code here
-    var $num;
-    var $rue;
-    var $cite;
+    private $num;
+    private $rue;
+    private $cite;
     function __construct() {
         parent::__construct();
     }
