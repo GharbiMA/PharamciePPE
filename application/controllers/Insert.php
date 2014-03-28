@@ -1,4 +1,5 @@
-<?php
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -7,19 +8,19 @@
  */
 
 /**
- * Description of Pharmacie
+ * Description of Insert
  *
  * @author MedAmineGharbi
  */
-class Pharmacie extends CI_Model {
-    //put your code here
-    var $nom;
-    var $tel;
-    var $type;
-    var $adresse;
+class Insert extends CI_Controller {
     function __construct() {
         parent::__construct();
         $this->load->database();
+        $this->load->helper('form');
+        $this->load->helper('url');
     }
-    
+    public function index()
+    {
+       $this->load->view('PharmInsert/PharmInsert_view');
+    }
 }
