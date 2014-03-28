@@ -19,6 +19,8 @@ class Welcome extends CI_Controller {
 	 */
 	public function index()
 	{
+                $this->load->library('doctrine');
+                $em = $this->doctrine->em;
 		$this->load->view('welcome_message');
 	}
 }
