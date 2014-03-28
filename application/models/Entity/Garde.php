@@ -11,9 +11,20 @@
  *
  * @author MedAmineGharbi
  */
+
+
 class Garde extends CI_Model {
-    //put your code here
-    var $date;
+    
+    
+    
+    private $date;
+    
+    /**
+     * @ManyToOne(targetEntity="Pharmacie", inversedBy="gardes")
+     **/
+    private $pharmacie;
+    
+    
     function __construct() {
         parent::__construct();
     }

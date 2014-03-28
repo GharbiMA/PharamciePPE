@@ -13,8 +13,8 @@
  */
 class InfoSupplimentaire extends CI_Model {
     //put your code here
-    var $specilite;
-    var $information;
+    private $specilite;
+    private $information;
     function __construct() {
         parent::__construct();
         $this->load->database();

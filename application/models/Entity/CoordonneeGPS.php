@@ -13,8 +13,8 @@
  */
 class CoordonneeGPS extends CI_Model {
     //put your code here
-    var $longitude;
-    var $lattitude;
+    private $longitude;
+    private $lattitude;
     function __construct() {
         parent::__construct();
     }

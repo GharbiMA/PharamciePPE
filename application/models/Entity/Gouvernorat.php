@@ -13,7 +13,7 @@
  */
 class Gouvernorat extends CI_Model {
     //put your code here
-    var $nom;
+    private $nom;
     function __construct() {
         parent::__construct();
         $this->load->database();
