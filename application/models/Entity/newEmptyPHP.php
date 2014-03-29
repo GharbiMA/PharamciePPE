@@ -53,6 +53,8 @@ class Localite    {
      */
     private $pharmacies;
             
+    
+    
     function __construct() {
                  
     }
