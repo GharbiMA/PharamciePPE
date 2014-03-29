@@ -9,47 +9,47 @@
 /**
  * Description of Localite 
  *
- * @author MedAmineGharbi
+ * @ORM\author MedAmineGharbi
  */
 
 
 namespace Entity;
-
+use \Doctrine\ORM\Mapping as ORM;
 /**
- * @Entity
+ * @ORM\Entity
  */
 
 class Localite    {
         /**
-     * @Id
-     * @Column(type="integer", unique=true, nullable=false)
-     * @GeneratedValue(strategy="AUTO")
+     * @ORM\Id
+     * @ORM\Column(type="integer", unique=true, nullable=false)
+     * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id ;
     /**
      *
-     * @Column(type="string", length=32, nullable=false) 
+     * @ORM\Column(type="string", length=32, nullable=false) 
      */    
     private $nom;
     /**
      *
-     * @Column(type="smallint" ,nullable=false) 
+     * @ORM\Column(type="smallint" ,nullable=false) 
      */    
     private $CodePostal;
     /**
      *
-     * @ManyToOne(targetEntity="Gouvernorat", inversedBy="localites")
+     * @ORM\ManyToOne(targetEntity="Gouvernorat", inversedBy="localites")
      */
     private $gouvernerat;    
     /**
      *
-     *  @OneToOne(targetEntity="CoordonneeGPS")
+     *  @ORM\OneToOne(targetEntity="CoordonneeGPS")
      */
     private $coordonnegps;
     
     
     /**
-     * @OneToMany(targetEntity="Adresse", mappedBy="localite")
+     * @ORM\OneToMany(targetEntity="Adresse", mappedBy="localite")
      */
     private $pharmacies;
             

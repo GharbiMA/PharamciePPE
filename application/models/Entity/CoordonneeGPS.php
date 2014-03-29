@@ -93,4 +93,5 @@ class CoordonneeGPS
     {
         return $this->lattitude;
     }
+    
 }

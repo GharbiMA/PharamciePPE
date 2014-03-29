@@ -16,15 +16,17 @@ class TestGrocery extends CI_Controller{
     function __construct() {
         parent::__construct();
 
-        $this->load->database();
-        $this->load->model('Pharmacie');
+        $this->load->database();        
         $this->load->helper('url');
         $this->load->library('grocery_CRUD');
     }
 
     function pharmacie() {
-        $this->grocery_crud->set_table('pharmacie');
-        $output = $this->grocery_crud->render();
+        $crud = new Grocery_CRUD();
+       
+        $crud->set_table("pharmacie");
+                       
+        $output = $crud->render();
         $this->_example_output($output);
     }
 

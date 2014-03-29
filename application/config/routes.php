@@ -37,11 +37,15 @@
 | in the URL cannot be matched to a valid route.
 |
 */
+//  $route['url'] = "controller/method/argument";
 
-//$route['default_controller'] = "welcome";
+$route['default_controller'] = "TestGrocery/pharmacie";
 $route['404_override'] = '';
-$route ['insertP'] = "Insert";
+
 $route ['list'] = 'TestGrocery/pharmacie';
+$route ['liste'] = "crud";
+//$route ['(:any)/(:any)'] = "crud/$1/$2";
+
 
 
 /* End of file routes.php */

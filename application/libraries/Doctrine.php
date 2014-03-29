@@ -39,8 +39,10 @@ class Doctrine
         $models_path = APPPATH . 'models';
         $proxies_dir = APPPATH . 'models/Proxies';
         $metadata_paths = array(APPPATH . 'models/Entity');        
+        
+
         // Set $dev_mode to TRUE to disable caching while you develop
-        $config = Setup::createAnnotationMetadataConfiguration($metadata_paths ,TRUE);
+        $config = Setup::createAnnotationMetadataConfiguration($metadata_paths ,TRUE ,$proxies_dir);
         
         $driverImpl = new \Doctrine\ORM\Mapping\Driver\AnnotationDriver(new \Doctrine\Common\Annotations\AnnotationReader, array(__DIR__ . "\..\models\Entity\\"));
         $config->setMetadataDriverImpl($driverImpl);

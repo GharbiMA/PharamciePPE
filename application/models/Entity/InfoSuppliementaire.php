@@ -1,33 +1,33 @@
 <?php
 
 
+
 namespace Entity;
-
-
+use Doctrine\ORM\Mapping as ORM;
 /**
- * @Entity
+ * @ORM\Entity
  */
 class InfoSupplimentaire   {
     /**
-     * @Id
-     * @Column(type="integer", unique=true, nullable=false)
-     * @GeneratedValue(strategy="AUTO")
+     * @ORM\Id
+     * @ORM\Column(type="integer", unique=true, nullable=false)
+     * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id ;
     /**
      *
-     * @Column(type="string", length=40, nullable=true) 
+     * @ORM\Column(type="string", length=40, nullable=true) 
      */        
     private $specialite;    
     /**
      *
-     * @Column(type="text", nullable=true) 
+     * @ORM\Column(type="text", nullable=true) 
      */    
     private $information;
     
     /**
      *
-     * @OneToOne(targetEntity="Pharmacie",inversedBy="infosuppliementaire")
+     * @ORM\OneToOne(targetEntity="Pharmacie",inversedBy="infosuppliementaire")
      */
     private $owner;
     

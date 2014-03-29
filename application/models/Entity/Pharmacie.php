@@ -1,13 +1,14 @@
 <?php
 
-namespace Entity;
 
+namespace Entity;
 use Doctrine\ORM\Mapping as ORM;
+
 
 /**
  * Entity\Pharmacie
  *
- * @ORM\Table(name="Pharmacie")
+ * 
  * @ORM\Entity
  */
 class Pharmacie
@@ -61,8 +62,12 @@ class Pharmacie
 
     /**
      * @var Entity\Adresse
-     *
-     * @ORM\OneToOne(targetEntity="Entity\Adresse", mappedBy="pharmacie")
+     *  
+     * @ORM\OneToOne(targetEntity="Entity\Adresse", inversedBy="pharmacie")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="adresse_id", referencedColumnName="id", unique=true)
+     * })
+     * 
      */
     private $adresse;
 

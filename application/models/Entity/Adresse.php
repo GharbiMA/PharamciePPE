@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Adresse
  *
- * @ORM\Table(name="Adresse")
+ * @ORM\Table(name="Adresses")
  * @ORM\Entity
  */
 class Adresse
@@ -55,10 +55,7 @@ class Adresse
     /**
      * @var \Entity\Pharmacie
      *
-     * @ORM\OneToOne(targetEntity="Entity\Pharmacie", inversedBy="adresse")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="pharmacie_id", referencedColumnName="id", unique=true)
-     * })
+     * @ORM\OneToOne(targetEntity="Entity\Pharmacie", mappedBy="adresse")
      */
     private $pharmacie;
 
