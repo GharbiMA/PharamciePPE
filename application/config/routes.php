@@ -43,7 +43,9 @@ $route['default_controller'] = "TestGrocery/pharmacie";
 $route['404_override'] = '';
 
 $route ['list'] = 'TestGrocery/pharmacie';
-$route ['liste'] = "crud";
+
+$route ['crud/pharmacie'] = "crud/pharmacie";
+//$route ['pharmacie/(:any)'] = "crud/pharmacie/$1";
 //$route ['(:any)/(:any)'] = "crud/$1/$2";
 
 

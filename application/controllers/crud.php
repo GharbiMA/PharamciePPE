@@ -1,12 +1,6 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
  * Description of Insert
  *
@@ -26,20 +20,87 @@ class crud extends CI_Controller {
         $this->load->helper('url');
     }
     
-    
-    function index() {
-        echo 'DDDDDDDDDDDD';
+    public function index(){
+        $this->pharmacie();
+    }
+            
+    function pharmacie() {
+        
         $crud = new Grocery_CRUD();
         $crud->set_table("pharmacie");
-        $crud->set_primary_key("id");
-        $crud->set_relation("adresse_id", "adresse", "rue");        
-        $output = $crud->render();
+        //$crud->set_theme('datatables');
+        $crud->set_primary_key("id");        
+        $crud->set_subject('Pharmacie');
+        $crud->set_relation("adresse_id", "adresse", "{numero} {rue} {cite}");        
+        //$crud->set_crud_url_path(site_url('pharmacie'));
+        $output = $crud->render();                                    
         $this->_example_output($output);
     }
+    
+    function adresse() {
+        
+        $crud = new Grocery_CRUD();
+        $crud->set_table("adresse");
+        //$crud->set_theme('datatables');
+        $crud->set_primary_key("id");        
+        $crud->set_subject('Adresse');
+        $crud->set_relation("localite_id", "localite", "{nom} ({CodePostal})");        
+        //$crud->set_crud_url_path(site_url('pharmacie'));
+        $output = $crud->render();                                    
+        $this->_example_output($output);
+    }
+   
+    function localite() {
+        
+        $crud = new Grocery_CRUD();
+        $crud->set_table("localite");
+        $crud->set_primary_key("id");        
+        $crud->set_subject('Localite');        
+        $crud->set_relation("gouvernerat_id", "gouvernorat", "nom");
+        $crud->display_as("gouvernerat_id", "Gouvernerat");
+        $crud->display_as("coordonnegps_id", "CoordonneGPS");
+        $crud->set_relation("coordonnegps_id", "coordonneegps", "({lattitude} ,{longitude})") ;
+        
+        //$crud->set_theme('datatables');
+        
+        //$crud->set_crud_url_path(site_url('pharmacie'));
+        $output = $crud->render();                                    
+        $this->_example_output($output);
+    }
+    
+    function gouvernorat() {
+        
+        $crud = new Grocery_CRUD();
+        $crud->set_table("gouvernorat");
+        //$crud->set_theme('datatables');
+        $crud->set_primary_key("id");        
+        $crud->set_subject('Gouvernorat');        
+        //$crud->set_crud_url_path(site_url('pharmacie'));
+        $output = $crud->render();                                    
+        $this->_example_output($output);
+    }
+    function garde() {
+        
+        $crud = new Grocery_CRUD();
+        $crud->set_table("garde");
+        //$crud->set_theme('datatables');
+        $crud->set_primary_key("id");        
+        $crud->set_subject('Gardes');
+        $crud->display_as("pharmacie_id","Pharmacie");
+        $crud->set_relation("pharmacie_id", "pharmacie", "{nom}");        
+        $crud->required_fields("date","pharmacie_id");
+        
+        //$crud->set_crud_url_path(site_url('pharmacie'));
+        $output = $crud->render();                                    
+        $this->_example_output($output);
+    }
+    
+    
+    
 
     function _example_output($output = null) {
         
-        $this->load->view('PharmInsert/example.php', $output);
+        $this->load->view('PharmInsert/crudview', $output);
     }
     
     public function g(){
@@ -51,16 +112,16 @@ class crud extends CI_Controller {
         
     }
 
-    public function  add(){
-        
-        $ph =new Entity\CoordonneeGPS;
-        $ph->setLattitude(time());
-        $ph->setLongitude(time());
-        $this->em->persist($ph);
-        $this->em->flush();
-        echo("kkkkkkkkkkkk");
-        
-    }               
+//    public function  add(){
+//        
+//        $ph =new Entity\CoordonneeGPS;
+//        $ph->setLattitude(time());
+//        $ph->setLongitude(time());
+//        $this->em->persist($ph);
+//        $this->em->flush();
+//        echo("kkkkkkkkkkkk");
+//        
+//    }               
     
 }
 
