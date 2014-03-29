@@ -7,10 +7,11 @@
  */
 
 /**
- * Description of CoordonneeGPS
+ * Description of Localite 
  *
  * @author MedAmineGharbi
  */
+
 
 namespace Entity;
 
@@ -18,9 +19,8 @@ namespace Entity;
  * @Entity
  */
 
-
-class CoordonneeGPS   {
-    /**
+class Localite    {
+        /**
      * @Id
      * @Column(type="integer", unique=true, nullable=false)
      * @GeneratedValue(strategy="AUTO")
@@ -30,15 +30,30 @@ class CoordonneeGPS   {
      *
      * @Column(type="string", length=32, nullable=false) 
      */    
-    private $longitude;    
+    private $nom;
     /**
      *
-     * @Column(type="string", length=32, nullable=false) 
+     * @Column(type="smallint" ,nullable=false) 
      */    
-    private $lattitude;
+    private $CodePostal;
+    /**
+     *
+     * @ManyToOne(targetEntity="Gouvernorat", inversedBy="localites")
+     */
+    private $gouvernerat;    
+    /**
+     *
+     *  @OneToOne(targetEntity="CoordonneeGPS")
+     */
+    private $coordonnegps;
     
-                            
+    
+    /**
+     * @OneToMany(targetEntity="Adresse", mappedBy="localite")
+     */
+    private $pharmacies;
+            
     function __construct() {
-         
+                 
     }
 }

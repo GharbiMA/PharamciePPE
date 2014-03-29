@@ -1,22 +1,38 @@
 <?php
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
+namespace Entity;
+
 
 /**
- * Description of InfoSuppliementaire
- *
- * @author MedAmineGharbi
+ * @Entity
  */
-class InfoSupplimentaire extends CI_Model {
-    //put your code here
-    private $specilite;
+class InfoSupplimentaire   {
+    /**
+     * @Id
+     * @Column(type="integer", unique=true, nullable=false)
+     * @GeneratedValue(strategy="AUTO")
+     */
+    protected $id ;
+    /**
+     *
+     * @Column(type="string", length=40, nullable=true) 
+     */        
+    private $specialite;    
+    /**
+     *
+     * @Column(type="text", nullable=true) 
+     */    
     private $information;
+    
+    /**
+     *
+     * @OneToOne(targetEntity="Pharmacie",inversedBy="infosuppliementaire")
+     */
+    private $owner;
+    
+    
     function __construct() {
-        parent::__construct();
-        $this->load->database();
+                 
     }
 }

@@ -7,11 +7,11 @@
  */
 
 /**
- * Description of localite
+ * Description of l 
  *
  * @author MedAmineGharbi
  */
-class localite extends CI_Model {
+class l  extends CI_Model {
     //put your code here
     var $nom;
     var $CodePostal;

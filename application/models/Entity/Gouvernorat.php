@@ -11,11 +11,34 @@
  *
  * @author MedAmineGharbi
  */
-class Gouvernorat extends CI_Model {
-    //put your code here
-    private $nom;
+namespace Entity;
+
+/**
+ * @Entity
+ */
+
+class Gouvernorat   {
+    
+    /**
+     * @Id
+     * @Column(type="integer", unique=true, nullable=false)
+     * @GeneratedValue(strategy="AUTO")
+     */
+    protected $id ;
+    
+    /**
+     *
+     * @Column(type="string", length=32, nullable=false) 
+     */  
+    private $nom;    
+    /**
+     *
+     * @OneToMany(targetEntity="Localite", mappedBy="gouvernerat", orphanRemoval=false)
+     */
+    private $localites;
+    
     function __construct() {
-        parent::__construct();
-        $this->load->database();
+         
+    
     }
 }

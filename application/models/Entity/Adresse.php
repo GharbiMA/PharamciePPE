@@ -11,12 +11,52 @@
  *
  * @author MedAmineGharbi
  */
-class Adresse extends CI_Model {
-    //put your code here
+namespace Entity;
+
+
+/**
+ * @Entity
+ * 
+ */
+
+
+class Adresse   {
+    
+    /**
+     * @Id
+     * @Column(type="integer", unique=true, nullable=false)
+     * @GeneratedValue(strategy="AUTO")
+     */
+    protected $id ;
+    /**
+     *
+     * @Column(type="smallint") 
+     */    
     private $num;
+    /**
+     *
+     * @Column(type="string", length=32, nullable=false) 
+     */    
     private $rue;
+    /**
+     *
+     * @Column(type="string", length=32, nullable=false) 
+     */    
     private $cite;
+       
+    /**
+     *  
+     *  @ManyToOne(targetEntity="Localite" , inversedBy="pharmacies")
+     */
+    private $localite; 
+    
+    /**
+     *
+     * @OneToOne(targetEntity="Pharmacie", inversedBy="adresse")
+     */
+    private $pharmacie;
+    
     function __construct() {
-        parent::__construct();
+         
     }
 }

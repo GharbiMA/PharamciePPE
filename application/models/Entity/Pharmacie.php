@@ -6,20 +6,17 @@
  */
 namespace Entity;
 
-use Doctrine\Common\Collections\ArrayCollection;
-
 /**
  * @Entity
- * @Table(name="pharmacies") 
+ * 
  */
 
-
-class Pharmacie extends CI_Model {
+class Pharmacie   {
     
     
     /**
      * @Id
-     * @Column(type="integer", length=32, unique=true, nullable=false)
+     * @Column(type="integer", unique=true, nullable=false)
      * @GeneratedValue(strategy="AUTO")
      */
     protected $id ;
@@ -46,26 +43,26 @@ class Pharmacie extends CI_Model {
     private $coordonneegps;
     
     /**
-     *
-     * @OneToOne(targetEntity="InfoSuppliementaire")
+     * 
+     * @OneToOne(targetEntity="InfoSupplimentaire" ,mappedBy="owner" )
      */
     private  $infosuppliementaire;
     
     /**
-     * @OneToOne(targetEntity="Adresse")
+     * @OneToOne(targetEntity="Adresse",mappedBy="pharmacie")
      */
     private $adresse;
     
     /**
      *
-     * @OneToMany(targetEntity="Garde", mappedBy="pharmacie", cascade={"persist"}, orphanRemoval=true)
+     * @OneToMany(targetEntity="Garde", mappedBy="pharmacie")
      */
     private $gardes;
             
     
     function __construct() {
-        parent::__construct();
-        $this->load->database();
+         
+      
     }
     
 }
