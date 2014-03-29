@@ -13,14 +13,41 @@
  * @author MedAmineGharbi
  */
 class Insert extends CI_Controller {
-    function __construct() {
+    
+    public $em;
+            function __construct() {
         parent::__construct();
-        $this->load->database();
+        //$this->load->library('doctrine');
+        $this->em = $this->doctrine->em;
+        //$this->load->database();
         $this->load->helper('form');
         $this->load->helper('url');
     }
     public function index()
-    {
+    {                
        $this->load->view('PharmInsert/PharmInsert_view');
     }
+    public function  save(){
+        
+        $ph =new Entity\CoordonneeGPS;
+        $ph->setLattitude(time());
+        $ph->setLongitude(time());
+        $this->em->persist($ph);
+        $this->em->flush();
+        echo("kkkkkkkkkkkk");
+        
+    }               
+    public function  show(){
+        $co = new Entity\CoordonneeGPS();
+        
+        $co = $this->em->find("Entity\CoordonneeGPS" ,3);
+        var_dump($cord);
+
+ 
+
+        
+    }
 }
+
+
+ 

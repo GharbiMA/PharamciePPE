@@ -1,7 +1,11 @@
 <?php 
+
 use Doctrine\Common\ClassLoader,
     Doctrine\ORM\Tools\Setup,
-    Doctrine\ORM\EntityManager;
+    Doctrine\ORM\EntityManager
+    ;
+
+
 
 class Doctrine
 {
@@ -12,9 +16,10 @@ class Doctrine
     {
         require_once __DIR__ . '/Doctrine/ORM/Tools/Setup.php';
         Setup::registerAutoloadDirectory(__DIR__);
-
+        
         // Load the database configuration from CodeIgniter
         require APPPATH . 'config/database.php';
+        require_once APPPATH.'libraries/Doctrine/Common/ClassLoader.php';
 
         $connection_options = array(
             'driver'        => 'pdo_mysql',
@@ -33,12 +38,17 @@ class Doctrine
         $models_namespace = 'Entity';
         $models_path = APPPATH . 'models';
         $proxies_dir = APPPATH . 'models/Proxies';
-        $metadata_paths = array(APPPATH . 'models/Entity');
-
+        $metadata_paths = array(APPPATH . 'models/Entity');        
         // Set $dev_mode to TRUE to disable caching while you develop
-        $config = Setup::createAnnotationMetadataConfiguration($metadata_paths, $dev_mode = true, $proxies_dir);
+        $config = Setup::createAnnotationMetadataConfiguration($metadata_paths ,TRUE);
+        
+        $driverImpl = new \Doctrine\ORM\Mapping\Driver\AnnotationDriver(new \Doctrine\Common\Annotations\AnnotationReader, array(__DIR__ . "\..\models\Entity\\"));
+        $config->setMetadataDriverImpl($driverImpl);
+        //$namingStrategy = new \Doctrine\ORM\Mapping\UnderscoreNamingStrategy(CASE_LOWER);
+        //$config->setNamingStrategy($namingStrategy);
         $this->em = EntityManager::create($connection_options, $config);
-
+        
+        
         $loader = new ClassLoader($models_namespace, $models_path);
         $loader->register();
     }
