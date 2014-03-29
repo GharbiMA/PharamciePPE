@@ -1,5 +1,7 @@
 <?php
 /*
+ *  $Id$
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -13,39 +15,38 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
+ * and is licensed under the LGPL. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
 namespace Doctrine\ORM\Tools\Console\Command;
 
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputOption;
-use Doctrine\ORM\Tools\Console\MetadataFilter;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument,
+    Symfony\Component\Console\Input\InputOption,
+    Symfony\Component\Console,
+    Doctrine\ORM\Tools\Console\MetadataFilter;
 
 /**
  * Command to (re)generate the proxy classes used by doctrine.
  *
+ * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  * @link    www.doctrine-project.org
  * @since   2.0
+ * @version $Revision$
  * @author  Benjamin Eberlei <kontakt@beberlei.de>
  * @author  Guilherme Blanco <guilhermeblanco@hotmail.com>
  * @author  Jonathan Wage <jonwage@gmail.com>
  * @author  Roman Borschel <roman@code-factory.org>
  */
-class GenerateProxiesCommand extends Command
+class GenerateProxiesCommand extends Console\Command\Command
 {
     /**
-     * {@inheritdoc}
+     * @see Console\Command\Command
      */
     protected function configure()
     {
         $this
         ->setName('orm:generate-proxies')
-        ->setAliases(array('orm:generate:proxies'))
         ->setDescription('Generates proxy classes for entity classes.')
         ->setDefinition(array(
             new InputOption(
@@ -64,9 +65,9 @@ EOT
     }
 
     /**
-     * {@inheritdoc}
+     * @see Console\Command\Command
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(Console\Input\InputInterface $input, Console\Output\OutputInterface $output)
     {
         $em = $this->getHelper('em')->getEntityManager();
 
@@ -88,9 +89,7 @@ EOT
             throw new \InvalidArgumentException(
                 sprintf("Proxies destination directory '<info>%s</info>' does not exist.", $em->getConfiguration()->getProxyDir())
             );
-        }
-
-        if ( ! is_writable($destPath)) {
+        } else if ( ! is_writable($destPath)) {
             throw new \InvalidArgumentException(
                 sprintf("Proxies destination directory '<info>%s</info>' does not have write permissions.", $destPath)
             );
@@ -98,8 +97,8 @@ EOT
 
         if ( count($metadatas)) {
             foreach ($metadatas as $metadata) {
-                $output->writeln(
-                    sprintf('Processing entity "<info>%s</info>"', $metadata->name)
+                $output->write(
+                    sprintf('Processing entity "<info>%s</info>"', $metadata->name) . PHP_EOL
                 );
             }
 
@@ -107,9 +106,10 @@ EOT
             $em->getProxyFactory()->generateProxyClasses($metadatas, $destPath);
 
             // Outputting information message
-            $output->writeln(PHP_EOL . sprintf('Proxy classes generated to "<info>%s</INFO>"', $destPath));
+            $output->write(PHP_EOL . sprintf('Proxy classes generated to "<info>%s</INFO>"', $destPath) . PHP_EOL);
         } else {
-            $output->writeln('No Metadata Classes to process.');
+            $output->write('No Metadata Classes to process.' . PHP_EOL);
         }
+
     }
 }

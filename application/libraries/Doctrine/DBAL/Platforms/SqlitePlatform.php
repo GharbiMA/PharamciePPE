@@ -13,7 +13,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
+ * and is licensed under the LGPL. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
@@ -33,7 +33,10 @@ use Doctrine\DBAL\DBALException;
 class SqlitePlatform extends AbstractPlatform
 {
     /**
-     * {@inheritDoc}
+     * returns the regular expression operator
+     *
+     * @return string
+     * @override
      */
     public function getRegexpExpression()
     {
@@ -41,7 +44,11 @@ class SqlitePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
+     * Return string to call a variable with the current timestamp inside an SQL statement
+     * There are three special variables for current date and time.
+     *
+     * @return string       sqlite function as string
+     * @override
      */
     public function getNowExpression($type = 'timestamp')
     {
@@ -57,97 +64,92 @@ class SqlitePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
+     * Trim a string, leading/trailing/both and with a given char which defaults to space.
+     *
+     * @param string $str
+     * @param int $pos
+     * @param string $char
+     * @return string
      */
     public function getTrimExpression($str, $pos = self::TRIM_UNSPECIFIED, $char = false)
     {
+        $trimFn = '';
         $trimChar = ($char != false) ? (', ' . $char) : '';
 
-        switch ($pos) {
-            case self::TRIM_LEADING:
-                $trimFn = 'LTRIM';
-                break;
-
-            case self::TRIM_TRAILING:
-                $trimFn = 'RTRIM';
-                break;
-
-            default:
-                $trimFn = 'TRIM';
+        if ($pos == self::TRIM_LEADING) {
+            $trimFn = 'LTRIM';
+        } else if($pos == self::TRIM_TRAILING) {
+            $trimFn = 'RTRIM';
+        } else {
+            $trimFn = 'TRIM';
         }
 
         return $trimFn . '(' . $str . $trimChar . ')';
     }
 
     /**
-     * {@inheritDoc}
+     * return string to call a function to get a substring inside an SQL statement
+     *
+     * Note: Not SQL92, but common functionality.
      *
      * SQLite only supports the 2 parameter variant of this function
+     *
+     * @param string $value         an sql string literal or column name/alias
+     * @param integer $position     where to start the substring portion
+     * @param integer $length       the substring portion length
+     * @return string               SQL substring function with given parameters
+     * @override
      */
     public function getSubstringExpression($value, $position, $length = null)
     {
         if ($length !== null) {
             return 'SUBSTR(' . $value . ', ' . $position . ', ' . $length . ')';
         }
-
         return 'SUBSTR(' . $value . ', ' . $position . ', LENGTH(' . $value . '))';
     }
 
     /**
-     * {@inheritDoc}
+     * returns the position of the first occurrence of substring $substr in string $str
+     *
+     * @param string $substr    literal string to find
+     * @param string $str       literal string
+     * @param int    $pos       position to start at, beginning of string by default
+     * @return integer
      */
     public function getLocateExpression($str, $substr, $startPos = false)
     {
         if ($startPos == false) {
             return 'LOCATE('.$str.', '.$substr.')';
+        } else {
+            return 'LOCATE('.$str.', '.$substr.', '.$startPos.')';
         }
-
-        return 'LOCATE('.$str.', '.$substr.', '.$startPos.')';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getDateDiffExpression($date1, $date2)
     {
         return 'ROUND(JULIANDAY('.$date1 . ')-JULIANDAY('.$date2.'))';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getDateAddDaysExpression($date, $days)
     {
         return "DATE(" . $date . ",'+". $days . " day')";
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getDateSubDaysExpression($date, $days)
     {
         return "DATE(" . $date . ",'-". $days . " day')";
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getDateAddMonthExpression($date, $months)
     {
         return "DATE(" . $date . ",'+". $months . " month')";
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getDateSubMonthExpression($date, $months)
     {
         return "DATE(" . $date . ",'-". $months . " month')";
     }
 
-    /**
-     * {@inheritDoc}
-     */
     protected function _getTransactionIsolationLevelSQL($level)
     {
         switch ($level) {
@@ -162,16 +164,13 @@ class SqlitePlatform extends AbstractPlatform
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getSetTransactionIsolationSQL($level)
     {
         return 'PRAGMA read_uncommitted = ' . $this->_getTransactionIsolationLevelSQL($level);
     }
 
     /**
-     * {@inheritDoc}
+     * @override
      */
     public function prefersIdentityColumns()
     {
@@ -179,7 +178,7 @@ class SqlitePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
+     * @override
      */
     public function getBooleanTypeDeclarationSQL(array $field)
     {
@@ -187,7 +186,7 @@ class SqlitePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
+     * @override
      */
     public function getIntegerTypeDeclarationSQL(array $field)
     {
@@ -195,7 +194,7 @@ class SqlitePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
+     * @override
      */
     public function getBigIntTypeDeclarationSQL(array $field)
     {
@@ -203,7 +202,7 @@ class SqlitePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
+     * @override
      */
     public function getTinyIntTypeDeclarationSql(array $field)
     {
@@ -211,7 +210,7 @@ class SqlitePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
+     * @override
      */
     public function getSmallIntTypeDeclarationSQL(array $field)
     {
@@ -219,7 +218,7 @@ class SqlitePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
+     * @override
      */
     public function getMediumIntTypeDeclarationSql(array $field)
     {
@@ -227,7 +226,7 @@ class SqlitePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
+     * @override
      */
     public function getDateTimeTypeDeclarationSQL(array $fieldDeclaration)
     {
@@ -235,7 +234,7 @@ class SqlitePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
+     * @override
      */
     public function getDateTypeDeclarationSQL(array $fieldDeclaration)
     {
@@ -243,7 +242,7 @@ class SqlitePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
+     * @override
      */
     public function getTimeTypeDeclarationSQL(array $fieldDeclaration)
     {
@@ -251,7 +250,7 @@ class SqlitePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
+     * @override
      */
     protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef)
     {
@@ -259,7 +258,33 @@ class SqlitePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
+     * create a new table
+     *
+     * @param string $name   Name of the database that should be created
+     * @param array $fields  Associative array that contains the definition of each field of the new table
+     *                       The indexes of the array entries are the names of the fields of the table an
+     *                       the array entry values are associative arrays like those that are meant to be
+     *                       passed with the field definitions to get[Type]Declaration() functions.
+     *                          array(
+     *                              'id' => array(
+     *                                  'type' => 'integer',
+     *                                  'unsigned' => 1
+     *                                  'notnull' => 1
+     *                                  'default' => 0
+     *                              ),
+     *                              'name' => array(
+     *                                  'type' => 'text',
+     *                                  'length' => 12
+     *                              ),
+     *                              'password' => array(
+     *                                  'type' => 'text',
+     *                                  'length' => 12
+     *                              )
+     *                          );
+     * @param array $options  An associative array of table options:
+     *
+     * @return void
+     * @override
      */
     protected function _getCreateTableSQL($name, array $columns, array $options = array())
     {
@@ -268,6 +293,7 @@ class SqlitePlatform extends AbstractPlatform
 
         if (isset($options['primary']) && ! empty($options['primary'])) {
             $keyColumns = array_unique(array_values($options['primary']));
+            $keyColumns = array_map(array($this, 'quoteIdentifier'), $keyColumns);
             $queryFields.= ', PRIMARY KEY('.implode(', ', $keyColumns).')';
         }
 
@@ -278,18 +304,16 @@ class SqlitePlatform extends AbstractPlatform
                 $query[] = $this->getCreateIndexSQL($indexDef, $name);
             }
         }
-
         if (isset($options['unique']) && ! empty($options['unique'])) {
             foreach ($options['unique'] as $index => $indexDef) {
                 $query[] = $this->getCreateIndexSQL($indexDef, $name);
             }
         }
-
         return $query;
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed)
     {
@@ -297,9 +321,6 @@ class SqlitePlatform extends AbstractPlatform
                 : ($length ? 'VARCHAR(' . $length . ')' : 'TEXT');
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getClobTypeDeclarationSQL(array $field)
     {
         return 'CLOB';
@@ -308,24 +329,18 @@ class SqlitePlatform extends AbstractPlatform
     public function getListTableConstraintsSQL($table)
     {
         $table = str_replace(".", "__", $table);
-
         return "SELECT sql FROM sqlite_master WHERE type='index' AND tbl_name = '$table' AND sql NOT NULL ORDER BY name";
     }
 
     public function getListTableColumnsSQL($table, $currentDatabase = null)
     {
         $table = str_replace(".", "__", $table);
-
         return "PRAGMA table_info($table)";
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getListTableIndexesSQL($table, $currentDatabase = null)
     {
         $table = str_replace(".", "__", $table);
-
         return "PRAGMA index_list($table)";
     }
 
@@ -336,9 +351,6 @@ class SqlitePlatform extends AbstractPlatform
              . "WHERE type = 'table' ORDER BY name";
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getListViewsSQL($database)
     {
         return "SELECT name, sql FROM sqlite_master WHERE type='view' AND sql NOT NULL";
@@ -355,35 +367,32 @@ class SqlitePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
-     *
      * SQLite does support foreign key constraints, but only in CREATE TABLE statements...
      * This really limits their usefulness and requires SQLite specific handling, so
      * we simply say that SQLite does NOT support foreign keys for now...
+     *
+     * @return boolean FALSE
+     * @override
      */
     public function supportsForeignKeyConstraints()
     {
         return false;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function supportsAlterTable()
     {
         return false;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function supportsIdentityColumns()
     {
         return true;
     }
 
     /**
-     * {@inheritDoc}
+     * Get the platform name for this instance
+     *
+     * @return string
      */
     public function getName()
     {
@@ -391,7 +400,7 @@ class SqlitePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritdoc
      */
     public function getTruncateTableSQL($tableName, $cascade = false)
     {
@@ -403,7 +412,6 @@ class SqlitePlatform extends AbstractPlatform
      * User-defined function for Sqlite that is used with PDO::sqliteCreateFunction()
      *
      * @param  int|float $value
-     *
      * @return float
      */
     static public function udfSqrt($value)
@@ -413,11 +421,6 @@ class SqlitePlatform extends AbstractPlatform
 
     /**
      * User-defined function for Sqlite that implements MOD(a, b)
-     *
-     * @param integer $a
-     * @param integer $b
-     *
-     * @return integer
      */
     static public function udfMod($a, $b)
     {
@@ -427,9 +430,7 @@ class SqlitePlatform extends AbstractPlatform
     /**
      * @param string $str
      * @param string $substr
-     * @param integer $offset
-     *
-     * @return integer
+     * @param int $offset
      */
     static public function udfLocate($str, $substr, $offset = 0)
     {
@@ -437,7 +438,6 @@ class SqlitePlatform extends AbstractPlatform
         if ($pos !== false) {
             return $pos+1;
         }
-
         return 0;
     }
 
@@ -446,9 +446,6 @@ class SqlitePlatform extends AbstractPlatform
         return '';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     protected function initializeDoctrineTypeMappings()
     {
         $this->doctrineTypeMapping = array(
@@ -484,44 +481,36 @@ class SqlitePlatform extends AbstractPlatform
             'decimal'          => 'decimal',
             'numeric'          => 'decimal',
             'blob'             => 'blob',
-            'integer unsigned' => 'integer',
         );
     }
 
-    /**
-     * {@inheritDoc}
-     */
     protected function getReservedKeywordsClass()
     {
         return 'Doctrine\DBAL\Platforms\Keywords\SQLiteKeywords';
     }
 
     /**
-     * {@inheritDoc}
+     * Gets the SQL Snippet used to declare a BLOB column type.
      */
     public function getBlobTypeDeclarationSQL(array $field)
     {
         return 'BLOB';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getTemporaryTableName($tableName)
     {
         $tableName = str_replace(".", "__", $tableName);
-
         return $tableName;
     }
 
     /**
-     * {@inheritDoc}
-     *
      * Sqlite Platform emulates schema by underscoring each dot and generating tables
      * into the default database.
      *
      * This hack is implemented to be able to use SQLite as testdriver when
      * using schema supporting databases.
+     *
+     * @return bool
      */
     public function canEmulateSchemas()
     {

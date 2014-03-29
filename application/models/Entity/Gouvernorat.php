@@ -1,44 +1,96 @@
 <?php
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/**
- * Description of Gouvernorat
- *
- * @author MedAmineGharbi
- */
 namespace Entity;
 
-/**
- * @Entity
- */
+use Doctrine\ORM\Mapping as ORM;
 
-class Gouvernorat   {
-    
+/**
+ * Entity\Gouvernorat
+ *
+ * @ORM\Table(name="Gouvernorat")
+ * @ORM\Entity
+ */
+class Gouvernorat
+{
     /**
-     * @Id
-     * @Column(type="integer", unique=true, nullable=false)
-     * @GeneratedValue(strategy="AUTO")
+     * @var integer $id
+     *
+     * @ORM\Column(name="id", type="integer", precision=0, scale=0, nullable=false, unique=true)
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="IDENTITY")
      */
-    protected $id ;
-    
+    private $id;
+
     /**
+     * @var string $nom
      *
-     * @Column(type="string", length=32, nullable=false) 
-     */  
-    private $nom;    
+     * @ORM\Column(name="nom", type="string", length=32, precision=0, scale=0, nullable=false, unique=false)
+     */
+    private $nom;
+
     /**
+     * @var \Doctrine\Common\Collections\ArrayCollection
      *
-     * @OneToMany(targetEntity="Localite", mappedBy="gouvernerat", orphanRemoval=false)
+     * @ORM\OneToMany(targetEntity="Entity\Localite", mappedBy="gouvernerat")
      */
     private $localites;
+
+    public function __construct()
+    {
+        $this->localites = new \Doctrine\Common\Collections\ArrayCollection();
+    }
     
-    function __construct() {
-         
-    
+    /**
+     * Get id
+     *
+     * @return integer 
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Set nom
+     *
+     * @param string $nom
+     * @return Gouvernorat
+     */
+    public function setNom($nom)
+    {
+        $this->nom = $nom;
+        return $this;
+    }
+
+    /**
+     * Get nom
+     *
+     * @return string 
+     */
+    public function getNom()
+    {
+        return $this->nom;
+    }
+
+    /**
+     * Add localites
+     *
+     * @param Entity\Localite $localites
+     * @return Gouvernorat
+     */
+    public function addLocalite(\Entity\Localite $localites)
+    {
+        $this->localites[] = $localites;
+        return $this;
+    }
+
+    /**
+     * Get localites
+     *
+     * @return Doctrine\Common\Collections\Collection 
+     */
+    public function getLocalites()
+    {
+        return $this->localites;
     }
 }

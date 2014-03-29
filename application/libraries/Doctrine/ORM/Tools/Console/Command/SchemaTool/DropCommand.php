@@ -1,5 +1,7 @@
 <?php
 /*
+ *  $Id$
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -13,23 +15,25 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
+ * and is licensed under the LGPL. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
 namespace Doctrine\ORM\Tools\Console\Command\SchemaTool;
 
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-use Doctrine\ORM\Tools\SchemaTool;
+use Symfony\Component\Console\Input\InputArgument,
+    Symfony\Component\Console\Input\InputOption,
+    Symfony\Component\Console\Input\InputInterface,
+    Symfony\Component\Console\Output\OutputInterface,
+    Doctrine\ORM\Tools\SchemaTool;
 
 /**
  * Command to drop the database schema for a set of classes based on their mappings.
  *
+ * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  * @link    www.doctrine-project.org
  * @since   2.0
+ * @version $Revision$
  * @author  Benjamin Eberlei <kontakt@beberlei.de>
  * @author  Guilherme Blanco <guilhermeblanco@hotmail.com>
  * @author  Jonathan Wage <jonwage@gmail.com>
@@ -38,7 +42,7 @@ use Doctrine\ORM\Tools\SchemaTool;
 class DropCommand extends AbstractCommand
 {
     /**
-     * {@inheritdoc}
+     * @see Console\Command\Command
      */
     protected function configure()
     {
@@ -50,7 +54,7 @@ class DropCommand extends AbstractCommand
         ->setDefinition(array(
             new InputOption(
                 'dump-sql', null, InputOption::VALUE_NONE,
-                'Instead of trying to apply generated SQLs into EntityManager Storage Connection, output them.'
+                'Instead of try to apply generated SQLs into EntityManager Storage Connection, output them.'
             ),
             new InputOption(
                 'force', null, InputOption::VALUE_NONE,
@@ -64,68 +68,44 @@ class DropCommand extends AbstractCommand
         ->setHelp(<<<EOT
 Processes the schema and either drop the database schema of EntityManager Storage Connection or generate the SQL output.
 Beware that the complete database is dropped by this command, even tables that are not relevant to your metadata model.
-
-<comment>Hint:</comment> If you have a database with tables that should not be managed
-by the ORM, you can use a DBAL functionality to filter the tables and sequences down
-on a global level:
-
-    \$config->setFilterSchemaAssetsExpression(\$regexp);
 EOT
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function executeSchemaCommand(InputInterface $input, OutputInterface $output, SchemaTool $schemaTool, array $metadatas)
     {
-        $isFullDatabaseDrop = $input->getOption('full-database');
+        $isFullDatabaseDrop = ($input->getOption('full-database'));
 
-        if ($input->getOption('dump-sql')) {
+        if ($input->getOption('dump-sql') === true) {
             if ($isFullDatabaseDrop) {
                 $sqls = $schemaTool->getDropDatabaseSQL();
             } else {
                 $sqls = $schemaTool->getDropSchemaSQL($metadatas);
             }
-            $output->writeln(implode(';' . PHP_EOL, $sqls));
-
-            return 0;
-        }
-
-        if ($input->getOption('force')) {
-            $output->writeln('Dropping database schema...');
-
+            $output->write(implode(';' . PHP_EOL, $sqls) . PHP_EOL);
+        } else if ($input->getOption('force') === true) {
+            $output->write('Dropping database schema...' . PHP_EOL);
             if ($isFullDatabaseDrop) {
                 $schemaTool->dropDatabase();
             } else {
                 $schemaTool->dropSchema($metadatas);
             }
-
-            $output->writeln('Database schema dropped successfully!');
-
-            return 0;
-        }
-
-        $output->writeln('<comment>ATTENTION</comment>: This operation should not be executed in a production environment.' . PHP_EOL);
-
-        if ($isFullDatabaseDrop) {
-            $sqls = $schemaTool->getDropDatabaseSQL();
+            $output->write('Database schema dropped successfully!' . PHP_EOL);
         } else {
-            $sqls = $schemaTool->getDropSchemaSQL($metadatas);
+            $output->write('ATTENTION: This operation should not be executed in a production environment.' . PHP_EOL . PHP_EOL);
+
+            if ($isFullDatabaseDrop) {
+                $sqls = $schemaTool->getDropDatabaseSQL();
+            } else {
+                $sqls = $schemaTool->getDropSchemaSQL($metadatas);
+            }
+
+            if (count($sqls)) {
+                $output->write('Schema-Tool would execute ' . count($sqls) . ' queries to drop the database.' . PHP_EOL);
+                $output->write('Please run the operation with --force to execute these queries or use --dump-sql to see them.' . PHP_EOL);
+            } else {
+                $output->write('Nothing to drop. The database is empty!' . PHP_EOL);
+            }
         }
-
-        if (count($sqls)) {
-            $output->writeln(sprintf('The Schema-Tool would execute <info>"%s"</info> queries to update the database.', count($sqls)));
-            $output->writeln('Please run the operation by passing one - or both - of the following options:');
-
-            $output->writeln(sprintf('    <info>%s --force</info> to execute the command', $this->getName()));
-            $output->writeln(sprintf('    <info>%s --dump-sql</info> to dump the SQL statements to the screen', $this->getName()));
-
-            return 1;
-        }
-
-        $output->writeln('Nothing to drop. The database is empty!');
-
-        return 0;
     }
 }

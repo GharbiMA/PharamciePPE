@@ -13,7 +13,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
+ * and is licensed under the LGPL. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
@@ -21,10 +21,16 @@ namespace Doctrine\ORM\Tools\Pagination;
 
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Query;
-use Doctrine\ORM\Query\ResultSetMapping;
 use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\Tools\Pagination\WhereInWalker;
+use Doctrine\ORM\Tools\Pagination\CountWalker;
+use Countable;
+use IteratorAggregate;
+use ArrayIterator;
 
 /**
+ * Paginator
+ *
  * The paginator can handle various complex scenarios with DQL.
  *
  * @author Pablo Díez <pablodip@gmail.com>
@@ -44,11 +50,6 @@ class Paginator implements \Countable, \IteratorAggregate
     private $fetchJoinCollection;
 
     /**
-     * @var bool|null
-     */
-    private $useOutputWalkers;
-
-    /**
      * @var int
      */
     private $count;
@@ -56,8 +57,8 @@ class Paginator implements \Countable, \IteratorAggregate
     /**
      * Constructor.
      *
-     * @param Query|QueryBuilder $query               A Doctrine ORM query or query builder.
-     * @param boolean            $fetchJoinCollection Whether the query joins a collection (true by default).
+     * @param Query|QueryBuilder $query A Doctrine ORM query or query builder.
+     * @param Boolean $fetchJoinCollection Whether the query joins a collection (true by default).
      */
     public function __construct($query, $fetchJoinCollection = true)
     {
@@ -70,7 +71,7 @@ class Paginator implements \Countable, \IteratorAggregate
     }
 
     /**
-     * Returns the query.
+     * Returns the query
      *
      * @return Query
      */
@@ -82,34 +83,11 @@ class Paginator implements \Countable, \IteratorAggregate
     /**
      * Returns whether the query joins a collection.
      *
-     * @return boolean Whether the query joins a collection.
+     * @return Boolean Whether the query joins a collection.
      */
     public function getFetchJoinCollection()
     {
         return $this->fetchJoinCollection;
-    }
-
-    /**
-     * Returns whether the paginator will use an output walker.
-     *
-     * @return bool|null
-     */
-    public function getUseOutputWalkers()
-    {
-        return $this->useOutputWalkers;
-    }
-
-    /**
-     * Sets whether the paginator will use an output walker.
-     *
-     * @param bool|null $useOutputWalkers
-     *
-     * @return $this
-     */
-    public function setUseOutputWalkers($useOutputWalkers)
-    {
-        $this->useOutputWalkers = $useOutputWalkers;
-        return $this;
     }
 
     /**
@@ -121,22 +99,11 @@ class Paginator implements \Countable, \IteratorAggregate
             /* @var $countQuery Query */
             $countQuery = $this->cloneQuery($this->query);
 
-            if ( ! $countQuery->hasHint(CountWalker::HINT_DISTINCT)) {
+            if ( ! $countQuery->getHint(CountWalker::HINT_DISTINCT)) {
                 $countQuery->setHint(CountWalker::HINT_DISTINCT, true);
             }
 
-            if ($this->useOutputWalker($countQuery)) {
-                $platform = $countQuery->getEntityManager()->getConnection()->getDatabasePlatform(); // law of demeter win
-
-                $rsm = new ResultSetMapping();
-                $rsm->addScalarResult($platform->getSQLResultCasing('dctrn_count'), 'count');
-
-                $countQuery->setHint(Query::HINT_CUSTOM_OUTPUT_WALKER, 'Doctrine\ORM\Tools\Pagination\CountOutputWalker');
-                $countQuery->setResultSetMapping($rsm);
-            } else {
-                $this->appendTreeWalker($countQuery, 'Doctrine\ORM\Tools\Pagination\CountWalker');
-            }
-
+            $countQuery->setHint(Query::HINT_CUSTOM_TREE_WALKERS, array('Doctrine\ORM\Tools\Pagination\CountWalker'));
             $countQuery->setFirstResult(null)->setMaxResults(null);
 
             try {
@@ -147,7 +114,6 @@ class Paginator implements \Countable, \IteratorAggregate
                 $this->count = 0;
             }
         }
-
         return $this->count;
     }
 
@@ -161,27 +127,25 @@ class Paginator implements \Countable, \IteratorAggregate
 
         if ($this->fetchJoinCollection) {
             $subQuery = $this->cloneQuery($this->query);
-
-            if ($this->useOutputWalker($subQuery)) {
-                $subQuery->setHint(Query::HINT_CUSTOM_OUTPUT_WALKER, 'Doctrine\ORM\Tools\Pagination\LimitSubqueryOutputWalker');
-            } else {
-                $this->appendTreeWalker($subQuery, 'Doctrine\ORM\Tools\Pagination\LimitSubqueryWalker');
-            }
-
-            $subQuery->setFirstResult($offset)->setMaxResults($length);
+            $subQuery->setHint(Query::HINT_CUSTOM_TREE_WALKERS, array('Doctrine\ORM\Tools\Pagination\LimitSubqueryWalker'))
+                ->setFirstResult($offset)
+                ->setMaxResults($length);
 
             $ids = array_map('current', $subQuery->getScalarResult());
 
             $whereInQuery = $this->cloneQuery($this->query);
             // don't do this for an empty id array
-            if (count($ids) == 0) {
-                return new \ArrayIterator(array());
-            }
+            if (count($ids) > 0) {
+                $namespace = WhereInWalker::PAGINATOR_ID_ALIAS;
 
-            $this->appendTreeWalker($whereInQuery, 'Doctrine\ORM\Tools\Pagination\WhereInWalker');
-            $whereInQuery->setHint(WhereInWalker::HINT_PAGINATOR_ID_COUNT, count($ids));
-            $whereInQuery->setFirstResult(null)->setMaxResults(null);
-            $whereInQuery->setParameter(WhereInWalker::PAGINATOR_ID_ALIAS, $ids);
+                $whereInQuery->setHint(Query::HINT_CUSTOM_TREE_WALKERS, array('Doctrine\ORM\Tools\Pagination\WhereInWalker'));
+                $whereInQuery->setHint(WhereInWalker::HINT_PAGINATOR_ID_COUNT, count($ids));
+                $whereInQuery->setFirstResult(null)->setMaxResults(null);
+                foreach ($ids as $i => $id) {
+                    $i++;
+                    $whereInQuery->setParameter("{$namespace}_{$i}", $id);
+                }
+            }
 
             $result = $whereInQuery->getResult($this->query->getHydrationMode());
         } else {
@@ -191,7 +155,6 @@ class Paginator implements \Countable, \IteratorAggregate
                 ->getResult($this->query->getHydrationMode())
             ;
         }
-
         return new \ArrayIterator($result);
     }
 
@@ -206,47 +169,12 @@ class Paginator implements \Countable, \IteratorAggregate
     {
         /* @var $cloneQuery Query */
         $cloneQuery = clone $query;
-
-        $cloneQuery->setParameters(clone $query->getParameters());
-
+        $cloneQuery->setParameters($query->getParameters());
         foreach ($query->getHints() as $name => $value) {
             $cloneQuery->setHint($name, $value);
         }
 
         return $cloneQuery;
     }
-
-    /**
-     * Determines whether to use an output walker for the query.
-     *
-     * @param Query $query The query.
-     *
-     * @return bool
-     */
-    private function useOutputWalker(Query $query)
-    {
-        if ($this->useOutputWalkers === null) {
-            return (Boolean) $query->getHint(Query::HINT_CUSTOM_OUTPUT_WALKER) == false;
-        }
-
-        return $this->useOutputWalkers;
-    }
-
-    /**
-     * Appends a custom tree walker to the tree walkers hint.
-     *
-     * @param Query $query
-     * @param string $walkerClass
-     */
-    private function appendTreeWalker(Query $query, $walkerClass)
-    {
-        $hints = $query->getHint(Query::HINT_CUSTOM_TREE_WALKERS);
-
-        if ($hints === false) {
-            $hints = array();
-        }
-
-        $hints[] = $walkerClass;
-        $query->setHint(Query::HINT_CUSTOM_TREE_WALKERS, $hints);
-    }
 }
+

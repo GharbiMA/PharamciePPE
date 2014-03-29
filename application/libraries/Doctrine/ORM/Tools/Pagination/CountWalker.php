@@ -13,14 +13,14 @@
 
 namespace Doctrine\ORM\Tools\Pagination;
 
-use Doctrine\ORM\Query\TreeWalkerAdapter;
-use Doctrine\ORM\Query\AST\SelectStatement;
-use Doctrine\ORM\Query\AST\SelectExpression;
-use Doctrine\ORM\Query\AST\PathExpression;
-use Doctrine\ORM\Query\AST\AggregateExpression;
+use Doctrine\ORM\Query\TreeWalkerAdapter,
+    Doctrine\ORM\Query\AST\SelectStatement,
+    Doctrine\ORM\Query\AST\SelectExpression,
+    Doctrine\ORM\Query\AST\PathExpression,
+    Doctrine\ORM\Query\AST\AggregateExpression;
 
 /**
- * Replaces the selectClause of the AST with a COUNT statement.
+ * Replaces the selectClause of the AST with a COUNT statement
  *
  * @category    DoctrineExtensions
  * @package     DoctrineExtensions\Paginate
@@ -31,27 +31,20 @@ use Doctrine\ORM\Query\AST\AggregateExpression;
 class CountWalker extends TreeWalkerAdapter
 {
     /**
-     * Distinct mode hint name.
+     * Distinct mode hint name
      */
     const HINT_DISTINCT = 'doctrine_paginator.distinct';
 
     /**
-     * Walks down a SelectStatement AST node, modifying it to retrieve a COUNT.
+     * Walks down a SelectStatement AST node, modifying it to retrieve a COUNT
      *
      * @param SelectStatement $AST
-     *
      * @return void
-     *
-     * @throws \RuntimeException
      */
     public function walkSelectStatement(SelectStatement $AST)
     {
-        if ($AST->havingClause) {
-            throw new \RuntimeException('Cannot count query that uses a HAVING clause. Use the output walkers for pagination');
-        }
-
         $rootComponents = array();
-        foreach ($this->_getQueryComponents() as $dqlAlias => $qComp) {
+        foreach ($this->_getQueryComponents() AS $dqlAlias => $qComp) {
             $isParent = array_key_exists('parent', $qComp)
                 && $qComp['parent'] === null
                 && $qComp['nestingLevel'] == 0
@@ -63,21 +56,15 @@ class CountWalker extends TreeWalkerAdapter
         if (count($rootComponents) > 1) {
             throw new \RuntimeException("Cannot count query which selects two FROM components, cannot make distinction");
         }
-        $root                = reset($rootComponents);
-        $parentName          = key($root);
-        $parent              = current($root);
-        $identifierFieldName = $parent['metadata']->getSingleIdentifierFieldName();
-
-        $pathType = PathExpression::TYPE_STATE_FIELD;
-        if (isset($parent['metadata']->associationMappings[$identifierFieldName])) {
-            $pathType = PathExpression::TYPE_SINGLE_VALUED_ASSOCIATION;
-        }
+        $root = reset($rootComponents);
+        $parentName = key($root);
+        $parent = current($root);
 
         $pathExpression = new PathExpression(
             PathExpression::TYPE_STATE_FIELD | PathExpression::TYPE_SINGLE_VALUED_ASSOCIATION, $parentName,
-            $identifierFieldName
+            $parent['metadata']->getSingleIdentifierFieldName()
         );
-        $pathExpression->type = $pathType;
+        $pathExpression->type = PathExpression::TYPE_STATE_FIELD;
 
         $distinct = $this->_getQuery()->getHint(self::HINT_DISTINCT);
         $AST->selectClause->selectExpressions = array(

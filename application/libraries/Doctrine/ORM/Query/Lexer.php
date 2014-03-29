@@ -13,7 +13,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
+ * and is licensed under the LGPL. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
@@ -98,22 +98,23 @@ class Lexer extends \Doctrine\Common\Lexer
     const T_OUTER               = 144;
     const T_SELECT              = 145;
     const T_SET                 = 146;
-    const T_SOME                = 147;
-    const T_SUM                 = 148;
-    const T_THEN                = 149;
-    const T_TRAILING            = 150;
-    const T_TRUE                = 151;
-    const T_UPDATE              = 152;
-    const T_WHEN                = 153;
-    const T_WHERE               = 154;
-    const T_WITH                = 155;
-    const T_PARTIAL             = 156;
-    const T_NEW                 = 157;
+    const T_SIZE                = 147;
+    const T_SOME                = 148;
+    const T_SUM                 = 149;
+    const T_THEN                = 150;
+    const T_TRAILING            = 151;
+    const T_TRUE                = 152;
+    const T_UPDATE              = 153;
+    const T_WHEN                = 154;
+    const T_WHERE               = 155;
+    const T_WITH                = 156;
+    const T_PARTIAL             = 157;
+    const T_MOD                 = 158;
 
     /**
      * Creates a new query scanner object.
      *
-     * @param string $input A query string.
+     * @param string $input a query string
      */
     public function __construct($input)
     {
@@ -129,7 +130,7 @@ class Lexer extends \Doctrine\Common\Lexer
             '[a-z_\\\][a-z0-9_\:\\\]*[a-z0-9_]{1}',
             '(?:[0-9]+(?:[\.][0-9]+)*)(?:e[+-]?[0-9]+)?',
             "'(?:[^']|'')*'",
-            '\?[0-9]*|:[a-z_][a-z0-9_]*'
+            '\?[0-9]*|:[a-z]{1}[a-z0-9_]{0,}'
         );
     }
 

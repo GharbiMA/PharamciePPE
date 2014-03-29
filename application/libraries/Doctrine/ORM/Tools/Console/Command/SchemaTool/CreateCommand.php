@@ -1,5 +1,7 @@
 <?php
 /*
+ *  $Id$
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -13,23 +15,25 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
+ * and is licensed under the LGPL. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
 namespace Doctrine\ORM\Tools\Console\Command\SchemaTool;
 
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-use Doctrine\ORM\Tools\SchemaTool;
+use Symfony\Component\Console\Input\InputArgument,
+    Symfony\Component\Console\Input\InputOption,
+    Symfony\Component\Console\Input\InputInterface,
+    Symfony\Component\Console\Output\OutputInterface,
+    Doctrine\ORM\Tools\SchemaTool;
 
 /**
  * Command to create the database schema for a set of classes based on their mappings.
  *
+ * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  * @link    www.doctrine-project.org
  * @since   2.0
+ * @version $Revision$
  * @author  Benjamin Eberlei <kontakt@beberlei.de>
  * @author  Guilherme Blanco <guilhermeblanco@hotmail.com>
  * @author  Jonathan Wage <jonwage@gmail.com>
@@ -38,7 +42,7 @@ use Doctrine\ORM\Tools\SchemaTool;
 class CreateCommand extends AbstractCommand
 {
     /**
-     * {@inheritdoc}
+     * @see Console\Command\Command
      */
     protected function configure()
     {
@@ -50,37 +54,26 @@ class CreateCommand extends AbstractCommand
         ->setDefinition(array(
             new InputOption(
                 'dump-sql', null, InputOption::VALUE_NONE,
-                'Instead of trying to apply generated SQLs into EntityManager Storage Connection, output them.'
+                'Instead of try to apply generated SQLs into EntityManager Storage Connection, output them.'
             )
         ))
         ->setHelp(<<<EOT
 Processes the schema and either create it directly on EntityManager Storage Connection or generate the SQL output.
-
-<comment>Hint:</comment> If you have a database with tables that should not be managed
-by the ORM, you can use a DBAL functionality to filter the tables and sequences down
-on a global level:
-
-    \$config->setFilterSchemaAssetsExpression(\$regexp);
 EOT
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function executeSchemaCommand(InputInterface $input, OutputInterface $output, SchemaTool $schemaTool, array $metadatas)
     {
-        if ($input->getOption('dump-sql')) {
+        $output->write('ATTENTION: This operation should not be executed in a production environment.' . PHP_EOL . PHP_EOL);
+
+        if ($input->getOption('dump-sql') === true) {
             $sqls = $schemaTool->getCreateSchemaSql($metadatas);
-            $output->writeln(implode(';' . PHP_EOL, $sqls) . ';');
+            $output->write(implode(';' . PHP_EOL, $sqls) . PHP_EOL);
         } else {
-            $output->writeln('ATTENTION: This operation should not be executed in a production environment.' . PHP_EOL);
-
-            $output->writeln('Creating database schema...');
+            $output->write('Creating database schema...' . PHP_EOL);
             $schemaTool->createSchema($metadatas);
-            $output->writeln('Database schema created successfully!');
+            $output->write('Database schema created successfully!' . PHP_EOL);
         }
-
-        return 0;
     }
 }

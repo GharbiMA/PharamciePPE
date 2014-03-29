@@ -1,44 +1,96 @@
 <?php
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/**
- * Description of CoordonneeGPS
- *
- * @author MedAmineGharbi
- */
-
 namespace Entity;
 
+use Doctrine\ORM\Mapping as ORM;
+
 /**
- * @Entity
+ * CoordonneeGPS
+ *
+ * @ORM\Table(name="CoordonneeGPS")
+ * @ORM\Entity
  */
-
-
-class CoordonneeGPS   {
+class CoordonneeGPS
+{
     /**
-     * @Id
-     * @Column(type="integer", unique=true, nullable=false)
-     * @GeneratedValue(strategy="AUTO")
+     * @var integer
+     *
+     * @ORM\Column(name="id", type="integer", precision=0, scale=0, nullable=false, unique=true)
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="IDENTITY")
      */
-    protected $id ;
+    private $id;
+
     /**
+     * @var string
      *
-     * @Column(type="string", length=32, nullable=false) 
-     */    
-    private $longitude;    
+     * @ORM\Column(name="longitude", type="string", length=32, precision=0, scale=0, nullable=false, unique=false)
+     */
+    private $longitude;
+
     /**
+     * @var string
      *
-     * @Column(type="string", length=32, nullable=false) 
-     */    
+     * @ORM\Column(name="lattitude", type="string", length=32, precision=0, scale=0, nullable=false, unique=false)
+     */
     private $lattitude;
-    
-                            
-    function __construct() {
-         
+
+
+    /**
+     * Get id
+     *
+     * @return integer 
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Set longitude
+     *
+     * @param string $longitude
+     *
+     * @return CoordonneeGPS
+     */
+    public function setLongitude($longitude)
+    {
+        $this->longitude = $longitude;
+
+        return $this;
+    }
+
+    /**
+     * Get longitude
+     *
+     * @return string 
+     */
+    public function getLongitude()
+    {
+        return $this->longitude;
+    }
+
+    /**
+     * Set lattitude
+     *
+     * @param string $lattitude
+     *
+     * @return CoordonneeGPS
+     */
+    public function setLattitude($lattitude)
+    {
+        $this->lattitude = $lattitude;
+
+        return $this;
+    }
+
+    /**
+     * Get lattitude
+     *
+     * @return string 
+     */
+    public function getLattitude()
+    {
+        return $this->lattitude;
     }
 }

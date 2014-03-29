@@ -13,7 +13,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
+ * and is licensed under the LGPL. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
@@ -25,18 +25,10 @@ namespace Doctrine\ORM\Mapping;
  */
 final class SequenceGenerator implements Annotation
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     public $sequenceName;
-
-    /**
-     * @var integer
-     */
+    /** @var integer */
     public $allocationSize = 1;
-
-    /**
-     * @var integer
-     */
+    /** @var integer */
     public $initialValue = 1;
 }

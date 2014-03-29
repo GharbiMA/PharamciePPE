@@ -13,7 +13,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
+ * and is licensed under the LGPL. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
@@ -23,7 +23,7 @@ namespace Doctrine\ORM\Query\AST;
  * GeneralCaseExpression ::= "CASE" WhenClause {WhenClause}* "ELSE" ScalarExpression "END"
  *
  * @since   2.2
- * 
+ * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  * @link    www.doctrine-project.org
  * @author  Benjamin Eberlei <kontakt@beberlei.de>
  * @author  Guilherme Blanco <guilhermeblanco@hotmail.com>
@@ -32,29 +32,15 @@ namespace Doctrine\ORM\Query\AST;
  */
 class GeneralCaseExpression extends Node
 {
-    /**
-     * @var array
-     */
     public $whenClauses = array();
-
-    /**
-     * @var mixed
-     */
     public $elseScalarExpression = null;
 
-    /**
-     * @param array $whenClauses
-     * @param mixed $elseScalarExpression
-     */
     public function __construct(array $whenClauses, $elseScalarExpression)
     {
         $this->whenClauses = $whenClauses;
         $this->elseScalarExpression = $elseScalarExpression;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function dispatch($sqlWalker)
     {
         return $sqlWalker->walkGeneralCaseExpression($this);

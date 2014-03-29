@@ -13,7 +13,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
+ * and is licensed under the LGPL. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
@@ -60,7 +60,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
      */
     protected $_values = array();
 
-    protected $_defaultFetchMode = PDO::FETCH_BOTH;
+    protected $_defaultFetchStyle = PDO::FETCH_BOTH;
 
     public function __construct(\mysqli $conn, $prepareString)
     {
@@ -86,7 +86,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function bindParam($column, &$variable, $type = null, $length = null)
+    public function bindParam($column, &$variable, $type = null)
     {
         if (null === $type) {
             $type = 's';
@@ -99,7 +99,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
         }
 
         $this->_bindedValues[$column] =& $variable;
-        $this->_bindedValues[0][$column - 1] = $type;
+        $this->_bindedValues[0][$column - 1] = 's';
         return true;
     }
 
@@ -120,7 +120,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
 
         $this->_values[$param] = $value;
         $this->_bindedValues[$param] =& $this->_values[$param];
-        $this->_bindedValues[0][$param - 1] = $type;
+        $this->_bindedValues[0][$param - 1] = 's';
         return true;
     }
 
@@ -131,7 +131,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
     {
         if (null !== $this->_bindedValues) {
             if (null !== $params) {
-                if ( ! $this->_bindValues($params)) {
+                if (!$this->_bindValues($params)) {
                     throw new MysqliException($this->_stmt->error, $this->_stmt->errno);
                 }
             } else {
@@ -141,7 +141,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
             }
         }
 
-        if ( ! $this->_stmt->execute()) {
+        if (!$this->_stmt->execute()) {
             throw new MysqliException($this->_stmt->error, $this->_stmt->errno);
         }
 
@@ -196,7 +196,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
     }
 
     /**
-     * @return boolean|array
+     * @return null|false|array
      */
     private function _fetch()
     {
@@ -216,7 +216,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function fetch($fetchMode = null)
+    public function fetch($fetchStyle = null)
     {
         $values = $this->_fetch();
         if (null === $values) {
@@ -227,9 +227,9 @@ class MysqliStatement implements \IteratorAggregate, Statement
             throw new MysqliException($this->_stmt->error, $this->_stmt->errno);
         }
 
-        $fetchMode = $fetchMode ?: $this->_defaultFetchMode;
+        $fetchStyle = $fetchStyle ?: $this->_defaultFetchStyle;
 
-        switch ($fetchMode) {
+        switch ($fetchStyle) {
             case PDO::FETCH_NUM:
                 return $values;
 
@@ -242,29 +242,22 @@ class MysqliStatement implements \IteratorAggregate, Statement
                 return $ret;
 
             default:
-                throw new MysqliException("Unknown fetch type '{$fetchMode}'");
+                throw new MysqliException("Unknown fetch type '{$fetchStyle}'");
         }
     }
 
     /**
      * {@inheritdoc}
      */
-    public function fetchAll($fetchMode = null)
+    public function fetchAll($fetchStyle = null)
     {
-        $fetchMode = $fetchMode ?: $this->_defaultFetchMode;
+        $fetchStyle = $fetchStyle ?: $this->_defaultFetchStyle;
 
-        $rows = array();
-        if (PDO::FETCH_COLUMN == $fetchMode) {
-            while (($row = $this->fetchColumn()) !== false) {
-                $rows[] = $row;
-            }
-        } else {
-            while (($row = $this->fetch($fetchMode)) !== null) {
-                $rows[] = $row;
-            }
+        $a = array();
+        while (($row = $this->fetch($fetchStyle)) !== null) {
+            $a[] = $row;
         }
-
-        return $rows;
+        return $a;
     }
 
     /**
@@ -274,7 +267,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
     {
         $row = $this->fetch(PDO::FETCH_NUM);
         if (null === $row) {
-            return false;
+            return null;
         }
         return $row[$columnIndex];
     }
@@ -326,9 +319,9 @@ class MysqliStatement implements \IteratorAggregate, Statement
     /**
      * {@inheritdoc}
      */
-    public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
+    public function setFetchMode($fetchMode = PDO::FETCH_BOTH)
     {
-        $this->_defaultFetchMode = $fetchMode;
+        $this->_defaultFetchStyle = $fetchMode;
     }
 
     /**
@@ -336,7 +329,7 @@ class MysqliStatement implements \IteratorAggregate, Statement
      */
     public function getIterator()
     {
-        $data = $this->fetchAll();
+        $data = $this->fetchAll($this->_defaultFetchStyle);
         return new \ArrayIterator($data);
     }
 }

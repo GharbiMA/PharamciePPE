@@ -13,7 +13,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
+ * and is licensed under the LGPL. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
@@ -24,9 +24,9 @@ use Doctrine\ORM\Query\SqlWalker;
 use Doctrine\ORM\Query\Parser;
 
 /**
- * "DATE_DIFF" "(" ArithmeticPrimary "," ArithmeticPrimary ")"
+ * "DATE_DIFF(date1, date2)"
  *
- * 
+ * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  * @link    www.doctrine-project.org
  * @since   2.0
  * @author  Benjamin Eberlei <kontakt@beberlei.de>
@@ -36,9 +36,6 @@ class DateDiffFunction extends FunctionNode
     public $date1;
     public $date2;
 
-    /**
-     * @override
-     */
     public function getSql(SqlWalker $sqlWalker)
     {
         return $sqlWalker->getConnection()->getDatabasePlatform()->getDateDiffExpression(
@@ -47,9 +44,6 @@ class DateDiffFunction extends FunctionNode
         );
     }
 
-    /**
-     * @override
-     */
     public function parse(Parser $parser)
     {
         $parser->match(Lexer::T_IDENTIFIER);

@@ -18,14 +18,15 @@
 
 namespace Doctrine\ORM\Tools\Pagination;
 
-use Doctrine\DBAL\Types\Type;
-use Doctrine\ORM\Query\TreeWalkerAdapter;
-use Doctrine\ORM\Query\AST\SelectStatement;
-use Doctrine\ORM\Query\AST\SelectExpression;
-use Doctrine\ORM\Query\AST\PathExpression;
+use Doctrine\DBAL\Types\Type,
+    Doctrine\ORM\Query\TreeWalkerAdapter,
+    Doctrine\ORM\Query\AST\SelectStatement,
+    Doctrine\ORM\Query\AST\SelectExpression,
+    Doctrine\ORM\Query\AST\PathExpression,
+    Doctrine\ORM\Query\AST\AggregateExpression;
 
 /**
- * Replaces the selectClause of the AST with a SELECT DISTINCT root.id equivalent.
+ * Replaces the selectClause of the AST with a SELECT DISTINCT root.id equivalent
  *
  * @category    DoctrineExtensions
  * @package     DoctrineExtensions\Paginate
@@ -36,26 +37,21 @@ use Doctrine\ORM\Query\AST\PathExpression;
 class LimitSubqueryWalker extends TreeWalkerAdapter
 {
     /**
-     * ID type hint.
+     * ID type hint
      */
     const IDENTIFIER_TYPE = 'doctrine_paginator.id.type';
 
     /**
-     * Counter for generating unique order column aliases.
-     *
-     * @var int
+     * @var int Counter for generating unique order column aliases
      */
     private $_aliasCounter = 0;
 
     /**
      * Walks down a SelectStatement AST node, modifying it to retrieve DISTINCT ids
-     * of the root Entity.
+     * of the root Entity
      *
      * @param SelectStatement $AST
-     *
      * @return void
-     *
-     * @throws \RuntimeException
      */
     public function walkSelectStatement(SelectStatement $AST)
     {
@@ -63,8 +59,8 @@ class LimitSubqueryWalker extends TreeWalkerAdapter
         $parentName = null;
         $selectExpressions = array();
 
-        foreach ($this->_getQueryComponents() as $dqlAlias => $qComp) {
-            // Preserve mixed data in query for ordering.
+        foreach ($this->_getQueryComponents() AS $dqlAlias => $qComp) {
+            // preserve mixed data in query for ordering
             if (isset($qComp['resultVariable'])) {
                 $selectExpressions[] = new SelectExpression($qComp['resultVariable'], $dqlAlias);
                 continue;
@@ -78,10 +74,6 @@ class LimitSubqueryWalker extends TreeWalkerAdapter
         }
 
         $identifier = $parent['metadata']->getSingleIdentifierFieldName();
-        if (isset($parent['metadata']->associationMappings[$identifier])) {
-            throw new \RuntimeException("Paginating an entity with foreign key as identifier only works when using the Output Walkers. Call Paginator#setUseOutputWalkers(true) before iterating the paginator.");
-        }
-
         $this->_getQuery()->setHint(
             self::IDENTIFIER_TYPE,
             Type::getType($parent['metadata']->getTypeOfField($identifier))
@@ -108,7 +100,7 @@ class LimitSubqueryWalker extends TreeWalkerAdapter
                     $pathExpression->type = PathExpression::TYPE_STATE_FIELD;
                     $AST->selectClause->selectExpressions[] = new SelectExpression(
                         $pathExpression,
-                        '_dctrn_ord' . $this->_aliasCounter++
+                    	'_dctrn_ord' . $this->_aliasCounter++
                     );
                 }
             }
@@ -116,4 +108,8 @@ class LimitSubqueryWalker extends TreeWalkerAdapter
 
         $AST->selectClause->isDistinct = true;
     }
+
 }
+
+
+

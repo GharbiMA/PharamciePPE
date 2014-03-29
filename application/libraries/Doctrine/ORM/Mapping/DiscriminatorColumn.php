@@ -13,7 +13,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
+ * and is licensed under the LGPL. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
@@ -25,30 +25,12 @@ namespace Doctrine\ORM\Mapping;
  */
 final class DiscriminatorColumn implements Annotation
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     public $name;
-
-    /**
-     * @var string
-     */
+    /** @var string */
     public $type;
-
-    /**
-     * @var integer
-     */
+    /** @var integer */
     public $length;
-
-    /**
-     * Field name used in non-object hydration (array/scalar).
-     *
-     * @var mixed
-     */
-    public $fieldName;
-
-    /**
-     * @var string
-     */
-    public $columnDefinition;
+    /** @var mixed */
+    public $fieldName; // field name used in non-object hydration (array/scalar)
 }

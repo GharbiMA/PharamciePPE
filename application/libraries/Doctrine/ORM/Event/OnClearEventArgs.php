@@ -13,18 +13,16 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
+ * and is licensed under the LGPL. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
 namespace Doctrine\ORM\Event;
 
-use Doctrine\ORM\EntityManager;
-
 /**
  * Provides event arguments for the onClear event.
  *
- * @license     http://www.opensource.org/licenses/mit-license.php MIT
+ * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
  * @link        www.doctrine-project.org
  * @since       2.0
  * @author      Roman Borschel <roman@code-factory.de>
@@ -46,16 +44,16 @@ class OnClearEventArgs extends \Doctrine\Common\EventArgs
      * Constructor.
      *
      * @param \Doctrine\ORM\EntityManager $em
-     * @param string|null                 $entityClass Optional entity class.
+     * @param string $entityClass Optional entity class
      */
-    public function __construct(EntityManager $em, $entityClass = null)
+    public function __construct($em, $entityClass = null)
     {
         $this->em          = $em;
         $this->entityClass = $entityClass;
     }
 
     /**
-     * Retrieves associated EntityManager.
+     * Retrieve associated EntityManager.
      *
      * @return \Doctrine\ORM\EntityManager
      */
@@ -67,7 +65,7 @@ class OnClearEventArgs extends \Doctrine\Common\EventArgs
     /**
      * Name of the entity class that is cleared, or empty if all are cleared.
      *
-     * @return string|null
+     * @return string
      */
     public function getEntityClass()
     {
@@ -75,7 +73,7 @@ class OnClearEventArgs extends \Doctrine\Common\EventArgs
     }
 
     /**
-     * Checks if event clears all entities.
+     * Check if event clears all entities.
      *
      * @return bool
      */

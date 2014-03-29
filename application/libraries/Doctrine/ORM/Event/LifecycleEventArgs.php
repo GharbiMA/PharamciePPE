@@ -13,14 +13,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
+ * and is licensed under the LGPL. For more information, see
  * <http://www.doctrine-project.org>.
 */
 
 namespace Doctrine\ORM\Event;
 
+use Doctrine\Common\EventArgs;
 use Doctrine\ORM\EntityManager;
-use Doctrine\Common\Persistence\Event\LifecycleEventArgs as BaseLifecycleEventArgs;
 
 /**
  * Lifecycle Events are triggered by the UnitOfWork during lifecycle transitions
@@ -31,25 +31,47 @@ use Doctrine\Common\Persistence\Event\LifecycleEventArgs as BaseLifecycleEventAr
  * @author Roman Borschel <roman@code-factory.de>
  * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
-class LifecycleEventArgs extends BaseLifecycleEventArgs
+class LifecycleEventArgs extends EventArgs
 {
     /**
-     * Retrieves associated Entity.
+     * @var \Doctrine\ORM\EntityManager
+     */
+    private $em;
+
+    /**
+     * @var object
+     */
+    private $entity;
+
+    /**
+     * Constructor
+     *
+     * @param object $entity
+     * @param \Doctrine\ORM\EntityManager $em
+     */
+    public function __construct($entity, EntityManager $em)
+    {
+        $this->entity = $entity;
+        $this->em     = $em;
+    }
+
+    /**
+     * Retireve associated Entity.
      *
      * @return object
      */
     public function getEntity()
     {
-        return $this->getObject();
+        return $this->entity;
     }
 
     /**
-     * Retrieves associated EntityManager.
+     * Retrieve associated EntityManager.
      *
      * @return \Doctrine\ORM\EntityManager
      */
     public function getEntityManager()
     {
-        return $this->getObjectManager();
+        return $this->em;
     }
 }

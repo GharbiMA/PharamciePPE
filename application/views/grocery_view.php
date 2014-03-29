@@ -49,12 +49,12 @@
                                 <?php
                                     if (!$this->session->userdata('user_name')) {
 
-}
-                                                if ($this->session->userdata('user_name')) {
-                                                            echo 'logged in as ' . $this->session->userdata('user_name');
-                                                            echo '<a class="dropdown-toggle"  href="' . site_url('logout') . '">logout</a>';
+                                    }
+                                    if ($this->session->userdata('user_name')) {
+                                            echo 'logged in as ' . $this->session->userdata('user_name');
+                                            echo '<a class="dropdown-toggle"  href="' . site_url('logout') . '">logout</a>';
                                         } else {
-                                                          echo '<a class="dropdown-toggle" href="' . site_url('login') . '"> login </a>';
+                                            echo '<a class="dropdown-toggle" href="' . site_url('login') . '"> login </a>';
                                         }
                                 ?>
 

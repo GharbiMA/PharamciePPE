@@ -13,7 +13,7 @@ class InfoSupplimentaire   {
      * @Column(type="integer", unique=true, nullable=false)
      * @GeneratedValue(strategy="AUTO")
      */
-    protected $id ;
+    private $id ;
     /**
      *
      * @Column(type="string", length=40, nullable=true) 

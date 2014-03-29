@@ -13,7 +13,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
+ * and is licensed under the LGPL. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
@@ -21,56 +21,26 @@ namespace Doctrine\ORM\Mapping;
 
 /**
  * @Annotation
- * @Target({"PROPERTY","ANNOTATION"})
+ * @Target("PROPERTY")
  */
 final class Column implements Annotation
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     public $name;
-
-    /**
-     * @var mixed
-     */
+    /** @var mixed */
     public $type = 'string';
-
-    /**
-     * @var integer
-     */
+    /** @var integer */
     public $length;
-
-    /**
-     * The precision for a decimal (exact numeric) column (Applies only for decimal column).
-     *
-     * @var integer
-     */
-    public $precision = 0;
-
-    /**
-     * The scale for a decimal (exact numeric) column (Applies only for decimal column).
-     *
-     * @var integer
-     */
-    public $scale = 0;
-
-    /**
-     * @var boolean
-     */
+    /** @var integer */
+    public $precision = 0; // The precision for a decimal (exact numeric) column (Applies only for decimal column)
+    /** @var integer */
+    public $scale = 0; // The scale for a decimal (exact numeric) column (Applies only for decimal column)
+    /** @var boolean */
     public $unique = false;
-
-    /**
-     * @var boolean
-     */
+    /** @var boolean */
     public $nullable = false;
-
-    /**
-     * @var array
-     */
+    /** @var array */
     public $options = array();
-
-    /**
-     * @var string
-     */
+    /** @var string */
     public $columnDefinition;
 }

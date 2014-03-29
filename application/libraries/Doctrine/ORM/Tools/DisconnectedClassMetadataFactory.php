@@ -13,14 +13,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
+ * and is licensed under the LGPL. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
 namespace Doctrine\ORM\Tools;
 
-use Doctrine\Common\Persistence\Mapping\StaticReflectionService;
 use Doctrine\ORM\Mapping\ClassMetadataFactory;
+use Doctrine\ORM\Mapping\ClassMetadataInfo;
 
 /**
  * The DisconnectedClassMetadataFactory is used to create ClassMetadataInfo objects
@@ -28,7 +28,7 @@ use Doctrine\ORM\Mapping\ClassMetadataFactory;
  * load some mapping information and use it to do things like generate code
  * from the mapping information.
  *
- *
+ * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  * @link    www.doctrine-project.org
  * @since   2.0
  * @author  Benjamin Eberlei <kontakt@beberlei.de>
@@ -38,11 +38,8 @@ use Doctrine\ORM\Mapping\ClassMetadataFactory;
  */
 class DisconnectedClassMetadataFactory extends ClassMetadataFactory
 {
-    /**
-     * @return \Doctrine\Common\Persistence\Mapping\StaticReflectionService
-     */
     public function getReflectionService()
     {
-        return new StaticReflectionService();
+        return new \Doctrine\Common\Persistence\Mapping\StaticReflectionService;
     }
 }

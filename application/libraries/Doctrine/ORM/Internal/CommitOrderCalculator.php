@@ -13,7 +13,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
+ * and is licensed under the LGPL. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
@@ -33,26 +33,9 @@ class CommitOrderCalculator
     const IN_PROGRESS = 2;
     const VISITED = 3;
 
-    /**
-     * @var array
-     */
     private $_nodeStates = array();
-
-    /**
-     * The nodes to sort.
-     *
-     * @var array
-     */
-    private $_classes = array();
-
-    /**
-     * @var array
-     */
+    private $_classes = array(); // The nodes to sort
     private $_relatedClasses = array();
-
-    /**
-     * @var array
-     */
     private $_sorted = array();
 
     /**
@@ -102,11 +85,6 @@ class CommitOrderCalculator
         return $sorted;
     }
 
-    /**
-     * @param \Doctrine\ORM\Mapping\ClassMetadata $node
-     *
-     * @return void
-     */
     private function _visitNode($node)
     {
         $this->_nodeStates[$node->name] = self::IN_PROGRESS;
@@ -123,32 +101,16 @@ class CommitOrderCalculator
         $this->_sorted[] = $node;
     }
 
-    /**
-     * @param \Doctrine\ORM\Mapping\ClassMetadata $fromClass
-     * @param \Doctrine\ORM\Mapping\ClassMetadata $toClass
-     *
-     * @return void
-     */
     public function addDependency($fromClass, $toClass)
     {
         $this->_relatedClasses[$fromClass->name][] = $toClass;
     }
 
-    /**
-     * @param string $className
-     *
-     * @return bool
-     */
     public function hasClass($className)
     {
         return isset($this->_classes[$className]);
     }
 
-    /**
-     * @param \Doctrine\ORM\Mapping\ClassMetadata $class
-     *
-     * @return void
-     */
     public function addClass($class)
     {
         $this->_classes[$class->name] = $class;

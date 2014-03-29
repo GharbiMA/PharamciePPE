@@ -13,7 +13,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
+ * and is licensed under the LGPL. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
@@ -22,7 +22,7 @@ namespace Doctrine\ORM\Query\AST;
 /**
  * FromClause ::= "FROM" IdentificationVariableDeclaration {"," IdentificationVariableDeclaration}
  *
- * 
+ * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  * @link    www.doctrine-project.org
  * @since   2.0
  * @author  Guilherme Blanco <guilhermeblanco@hotmail.com>
@@ -31,22 +31,13 @@ namespace Doctrine\ORM\Query\AST;
  */
 class FromClause extends Node
 {
-    /**
-     * @var array
-     */
     public $identificationVariableDeclarations = array();
 
-    /**
-     * @param array $identificationVariableDeclarations
-     */
     public function __construct(array $identificationVariableDeclarations)
     {
         $this->identificationVariableDeclarations = $identificationVariableDeclarations;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function dispatch($sqlWalker)
     {
         return $sqlWalker->walkFromClause($this);

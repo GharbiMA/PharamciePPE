@@ -13,18 +13,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
+ * and is licensed under the LGPL. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
 namespace Doctrine\DBAL\Platforms;
 
-use Doctrine\DBAL\Schema\ForeignKeyConstraint;
-use Doctrine\DBAL\Schema\Index;
-use Doctrine\DBAL\Schema\Sequence;
-use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
-use Doctrine\DBAL\DBALException;
 
 /**
  * OraclePlatform.
@@ -37,23 +32,15 @@ use Doctrine\DBAL\DBALException;
 class OraclePlatform extends AbstractPlatform
 {
     /**
-     * Assertion for Oracle identifiers
+     * return string to call a function to get a substring inside an SQL statement
      *
-     * @link http://docs.oracle.com/cd/B19306_01/server.102/b14200/sql_elements008.htm
+     * Note: Not SQL92, but common functionality.
      *
-     * @param string
-     *
-     * @throws DBALException
-     */
-    static public function assertValidIdentifier($identifier)
-    {
-        if ( ! preg_match('(^(([a-zA-Z]{1}[a-zA-Z0-9_$#]{0,})|("[^"]+"))$)', $identifier)) {
-            throw new DBALException("Invalid Oracle identifier");
-        }
-    }
-
-    /**
-     * {@inheritDoc}
+     * @param string $value         an sql string literal or column name/alias
+     * @param integer $position     where to start the substring portion
+     * @param integer $length       the substring portion length
+     * @return string               SQL substring function with given parameters
+     * @override
      */
     public function getSubstringExpression($value, $position, $length = null)
     {
@@ -65,7 +52,14 @@ class OraclePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
+     * Return string to call a variable with the current timestamp inside an SQL statement
+     * There are three special variables for current date and time:
+     * - CURRENT_TIMESTAMP (date and time, TIMESTAMP type)
+     * - CURRENT_DATE (date, DATE type)
+     * - CURRENT_TIME (time, TIME type)
+     *
+     * @return string to call a variable with the current timestamp
+     * @override
      */
     public function getNowExpression($type = 'timestamp')
     {
@@ -79,19 +73,27 @@ class OraclePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
+     * returns the position of the first occurrence of substring $substr in string $str
+     *
+     * @param string $substr    literal string to find
+     * @param string $str       literal string
+     * @param int    $pos       position to start at, beginning of string by default
+     * @return integer
      */
     public function getLocateExpression($str, $substr, $startPos = false)
     {
         if ($startPos == false) {
             return 'INSTR('.$str.', '.$substr.')';
+        } else {
+            return 'INSTR('.$str.', '.$substr.', '.$startPos.')';
         }
-
-        return 'INSTR('.$str.', '.$substr.', '.$startPos.')';
     }
 
     /**
-     * {@inheritDoc}
+     * Returns global unique identifier
+     *
+     * @return string to get global unique identifier
+     * @override
      */
     public function getGuidExpression()
     {
@@ -99,11 +101,15 @@ class OraclePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
+     * Get the number of days difference between two dates.
      *
      * Note: Since Oracle timestamp differences are calculated down to the microsecond we have to truncate
      * them to the difference in days. This is obviously a restriction of the original functionality, but we
      * need to make this a portable function.
+     *
+     * @param type $date1
+     * @param type $date2
+     * @return type
      */
     public function getDateDiffExpression($date1, $date2)
     {
@@ -111,7 +117,7 @@ class OraclePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getDateAddDaysExpression($date, $days)
     {
@@ -119,7 +125,7 @@ class OraclePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getDateSubDaysExpression($date, $days)
     {
@@ -127,7 +133,7 @@ class OraclePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getDateAddMonthExpression($date, $months)
     {
@@ -135,7 +141,7 @@ class OraclePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getDateSubMonthExpression($date, $months)
     {
@@ -143,7 +149,7 @@ class OraclePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getBitAndComparisonExpression($value1, $value2)
     {
@@ -151,7 +157,7 @@ class OraclePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getBitOrComparisonExpression($value1, $value2)
     {
@@ -161,13 +167,17 @@ class OraclePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
+     * Gets the SQL used to create a sequence that starts with a given value
+     * and increments by the given allocation size.
      *
      * Need to specifiy minvalue, since start with is hidden in the system and MINVALUE <= START WITH.
      * Therefore we can use MINVALUE to be able to get a hint what START WITH was for later introspection
      * in {@see listSequences()}
+     *
+     * @param \Doctrine\DBAL\Schema\Sequence $sequence
+     * @return string
      */
-    public function getCreateSequenceSQL(Sequence $sequence)
+    public function getCreateSequenceSQL(\Doctrine\DBAL\Schema\Sequence $sequence)
     {
         return 'CREATE SEQUENCE ' . $sequence->getQuotedName($this) .
                ' START WITH ' . $sequence->getInitialValue() .
@@ -175,9 +185,6 @@ class OraclePlatform extends AbstractPlatform
                ' INCREMENT BY ' . $sequence->getAllocationSize();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getAlterSequenceSQL(\Doctrine\DBAL\Schema\Sequence $sequence)
     {
         return 'ALTER SEQUENCE ' . $sequence->getQuotedName($this) .
@@ -185,7 +192,10 @@ class OraclePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
+     *
+     * @param string $sequenceName
+     * @override
      */
     public function getSequenceNextValSQL($sequenceName)
     {
@@ -193,16 +203,16 @@ class OraclePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
+     *
+     * @param integer $level
+     * @override
      */
     public function getSetTransactionIsolationSQL($level)
     {
         return 'SET TRANSACTION ISOLATION LEVEL ' . $this->_getTransactionIsolationLevelSQL($level);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     protected function _getTransactionIsolationLevelSQL($level)
     {
         switch ($level) {
@@ -219,7 +229,7 @@ class OraclePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
+     * @override
      */
     public function getBooleanTypeDeclarationSQL(array $field)
     {
@@ -227,7 +237,7 @@ class OraclePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
+     * @override
      */
     public function getIntegerTypeDeclarationSQL(array $field)
     {
@@ -235,7 +245,7 @@ class OraclePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
+     * @override
      */
     public function getBigIntTypeDeclarationSQL(array $field)
     {
@@ -243,7 +253,7 @@ class OraclePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
+     * @override
      */
     public function getSmallIntTypeDeclarationSQL(array $field)
     {
@@ -251,7 +261,7 @@ class OraclePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
+     * @override
      */
     public function getDateTimeTypeDeclarationSQL(array $fieldDeclaration)
     {
@@ -259,7 +269,7 @@ class OraclePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
+     * @override
      */
     public function getDateTimeTzTypeDeclarationSQL(array $fieldDeclaration)
     {
@@ -267,7 +277,7 @@ class OraclePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
+     * @override
      */
     public function getDateTypeDeclarationSQL(array $fieldDeclaration)
     {
@@ -275,7 +285,7 @@ class OraclePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
+     * @override
      */
     public function getTimeTypeDeclarationSQL(array $fieldDeclaration)
     {
@@ -283,7 +293,7 @@ class OraclePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
+     * @override
      */
     protected function _getCommonIntegerTypeDeclarationSQL(array $columnDef)
     {
@@ -291,7 +301,10 @@ class OraclePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
+     * Gets the SQL snippet used to declare a VARCHAR column on the Oracle platform.
+     *
+     * @params array $field
+     * @override
      */
     protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed)
     {
@@ -299,9 +312,7 @@ class OraclePlatform extends AbstractPlatform
                 : ($length ? 'VARCHAR2(' . $length . ')' : 'VARCHAR2(4000)');
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** @override */
     public function getClobTypeDeclarationSQL(array $field)
     {
         return 'CLOB';
@@ -319,7 +330,11 @@ class OraclePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
+     *
+     * @param string $table
+     * @param array $columns
+     * @param array $options
+     * @return array
      */
     protected function _getCreateTableSQL($table, array $columns, array $options = array())
     {
@@ -339,7 +354,7 @@ class OraclePlatform extends AbstractPlatform
         }
 
         if (isset($indexes) && ! empty($indexes)) {
-            foreach ($indexes as $index) {
+            foreach ($indexes as $indexName => $index) {
                 $sql[] = $this->getCreateIndexSQL($index, $table);
             }
         }
@@ -348,10 +363,10 @@ class OraclePlatform extends AbstractPlatform
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @license New BSD License
      * @link http://ezcomponents.org/docs/api/trunk/DatabaseSchema/ezcDbSchemaOracleReader.html
+     * @param  string $table
+     * @return string
      */
     public function getListTableIndexesSQL($table, $currentDatabase = null)
     {
@@ -372,9 +387,6 @@ class OraclePlatform extends AbstractPlatform
         return 'SELECT * FROM sys.user_tables';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getListViewsSQL($database)
     {
         return 'SELECT view_name, text FROM sys.user_views';
@@ -396,8 +408,12 @@ class OraclePlatform extends AbstractPlatform
         $sql   = array();
 
         $indexName  = $table . '_AI_PK';
+        $definition = array(
+            'primary' => true,
+            'columns' => array($name => true),
+        );
 
-        $idx = new Index($indexName, array($name), true, true);
+        $idx = new \Doctrine\DBAL\Schema\Index($indexName, array($name), true, true);
 
         $sql[] = 'DECLARE
   constraints_Count NUMBER;
@@ -409,7 +425,7 @@ BEGIN
 END;';
 
         $sequenceName = $table . '_SEQ';
-        $sequence = new Sequence($sequenceName, $start);
+        $sequence = new \Doctrine\DBAL\Schema\Sequence($sequenceName, $start);
         $sql[] = $this->getCreateSequenceSQL($sequence);
 
         $triggerName  = $table . '_AI_PK';
@@ -434,7 +450,6 @@ BEGIN
       END LOOP;
    END IF;
 END;';
-
         return $sql;
     }
 
@@ -443,11 +458,13 @@ END;';
         $table = strtoupper($table);
         $trigger = $table . '_AI_PK';
 
-        $sql[] = 'DROP TRIGGER ' . $trigger;
-        $sql[] = $this->getDropSequenceSQL($table.'_SEQ');
+        if ($trigger) {
+            $sql[] = 'DROP TRIGGER ' . $trigger;
+            $sql[] = $this->getDropSequenceSQL($table.'_SEQ');
 
-        $indexName = $table . '_AI_PK';
-        $sql[] = $this->getDropConstraintSQL($indexName, $table);
+            $indexName = $table . '_AI_PK';
+            $sql[] = $this->getDropConstraintSQL($indexName, $table);
+        }
 
         return $sql;
     }
@@ -488,8 +505,7 @@ LEFT JOIN user_cons_columns r_cols
 
         $tabColumnsTableName = "user_tab_columns";
         $ownerCondition = '';
-
-        if (null !== $database){
+        if(null !== $database){
             $database = strtoupper($database);
             $tabColumnsTableName = "all_tab_columns";
             $ownerCondition = "AND c.owner = '".$database."'";
@@ -501,11 +517,13 @@ LEFT JOIN user_cons_columns r_cols
     }
 
     /**
-     * {@inheritDoc}
+     *
+     * @param  \Doctrine\DBAL\Schema\Sequence $sequence
+     * @return string
      */
     public function getDropSequenceSQL($sequence)
     {
-        if ($sequence instanceof Sequence) {
+        if ($sequence instanceof \Doctrine\DBAL\Schema\Sequence) {
             $sequence = $sequence->getQuotedName($this);
         }
 
@@ -513,31 +531,39 @@ LEFT JOIN user_cons_columns r_cols
     }
 
     /**
-     * {@inheritDoc}
+     * @param  ForeignKeyConstraint|string $foreignKey
+     * @param  Table|string $table
+     * @return string
      */
     public function getDropForeignKeySQL($foreignKey, $table)
     {
-        if ($foreignKey instanceof ForeignKeyConstraint) {
+        if ($foreignKey instanceof \Doctrine\DBAL\Schema\ForeignKeyConstraint) {
             $foreignKey = $foreignKey->getQuotedName($this);
         }
 
-        if ($table instanceof Table) {
+        if ($table instanceof \Doctrine\DBAL\Schema\Table) {
             $table = $table->getQuotedName($this);
         }
 
         return 'ALTER TABLE ' . $table . ' DROP CONSTRAINT ' . $foreignKey;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getDropDatabaseSQL($database)
     {
         return 'DROP USER ' . $database . ' CASCADE';
     }
 
     /**
-     * {@inheritDoc}
+     * Gets the sql statements for altering an existing table.
+     *
+     * The method returns an array of sql statements, since some platforms need several statements.
+     *
+     * @param string $diff->name          name of the table that is intended to be changed.
+     * @param array $changes        associative array that contains the details of each type      *
+     * @param boolean $check        indicates whether the function should just check if the DBMS driver
+     *                              can perform the requested table alterations if the value is true or
+     *                              actually perform them otherwise.
+     * @return array
      */
     public function getAlterTableSQL(TableDiff $diff)
     {
@@ -546,8 +572,7 @@ LEFT JOIN user_cons_columns r_cols
         $columnSql = array();
 
         $fields = array();
-
-        foreach ($diff->addedColumns as $column) {
+        foreach ($diff->addedColumns AS $column) {
             if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {
                 continue;
             }
@@ -557,13 +582,12 @@ LEFT JOIN user_cons_columns r_cols
                 $commentsSQL[] = $this->getCommentOnColumnSQL($diff->name, $column->getName(), $comment);
             }
         }
-
         if (count($fields)) {
             $sql[] = 'ALTER TABLE ' . $diff->name . ' ADD (' . implode(', ', $fields) . ')';
         }
 
         $fields = array();
-        foreach ($diff->changedColumns as $columnDiff) {
+        foreach ($diff->changedColumns AS $columnDiff) {
             if ($this->onSchemaAlterTableChangeColumn($columnDiff, $diff, $columnSql)) {
                 continue;
             }
@@ -574,12 +598,11 @@ LEFT JOIN user_cons_columns r_cols
                 $commentsSQL[] = $this->getCommentOnColumnSQL($diff->name, $column->getName(), $comment);
             }
         }
-
         if (count($fields)) {
             $sql[] = 'ALTER TABLE ' . $diff->name . ' MODIFY (' . implode(', ', $fields) . ')';
         }
 
-        foreach ($diff->renamedColumns as $oldColumnName => $column) {
+        foreach ($diff->renamedColumns AS $oldColumnName => $column) {
             if ($this->onSchemaAlterTableRenameColumn($oldColumnName, $column, $diff, $columnSql)) {
                 continue;
             }
@@ -588,21 +611,20 @@ LEFT JOIN user_cons_columns r_cols
         }
 
         $fields = array();
-        foreach ($diff->removedColumns as $column) {
+        foreach ($diff->removedColumns AS $column) {
             if ($this->onSchemaAlterTableRemoveColumn($column, $diff, $columnSql)) {
                 continue;
             }
 
             $fields[] = $column->getQuotedName($this);
         }
-
         if (count($fields)) {
             $sql[] = 'ALTER TABLE ' . $diff->name . ' DROP (' . implode(', ', $fields).')';
         }
 
         $tableSql = array();
 
-        if ( ! $this->onSchemaAlterTable($diff, $tableSql)) {
+        if (!$this->onSchemaAlterTable($diff, $tableSql)) {
             if ($diff->newName !== false) {
                 $sql[] = 'ALTER TABLE ' . $diff->name . ' RENAME TO ' . $diff->newName;
             }
@@ -614,23 +636,24 @@ LEFT JOIN user_cons_columns r_cols
     }
 
     /**
-     * {@inheritDoc}
+     * Whether the platform prefers sequences for ID generation.
+     *
+     * @return boolean
      */
     public function prefersSequences()
     {
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function supportsCommentOnStatement()
     {
         return true;
     }
 
     /**
-     * {@inheritDoc}
+     * Get the platform name for this instance
+     *
+     * @return string
      */
     public function getName()
     {
@@ -638,13 +661,17 @@ LEFT JOIN user_cons_columns r_cols
     }
 
     /**
-     * {@inheritDoc}
+     * Adds an driver-specific LIMIT clause to the query
+     *
+     * @param string $query         query to modify
+     * @param integer $limit        limit the number of rows
+     * @param integer $offset       start reading from given offset
+     * @return string               the modified query
      */
     protected function doModifyLimitQuery($query, $limit, $offset = null)
     {
         $limit = (int) $limit;
         $offset = (int) $offset;
-
         if (preg_match('/^\s*SELECT/i', $query)) {
             if (!preg_match('/\sFROM\s/i', $query)) {
                 $query .= " FROM dual";
@@ -662,14 +689,16 @@ LEFT JOIN user_cons_columns r_cols
                 }
             }
         }
-
         return $query;
     }
 
     /**
-     * {@inheritDoc}
+     * Gets the character casing of a column in an SQL result set of this platform.
      *
      * Oracle returns all column names in SQL result sets in uppercase.
+     *
+     * @param string $column The column name for which to get the correct character casing.
+     * @return string The column name in the character casing used in SQL result sets.
      */
     public function getSQLResultCasing($column)
     {
@@ -681,45 +710,34 @@ LEFT JOIN user_cons_columns r_cols
         return "CREATE GLOBAL TEMPORARY TABLE";
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getDateTimeTzFormatString()
     {
         return 'Y-m-d H:i:sP';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getDateFormatString()
     {
         return 'Y-m-d 00:00:00';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getTimeFormatString()
     {
         return '1900-01-01 H:i:s';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function fixSchemaElementName($schemaElementName)
     {
         if (strlen($schemaElementName) > 30) {
             // Trim it
             return substr($schemaElementName, 0, 30);
         }
-
         return $schemaElementName;
     }
 
     /**
-     * {@inheritDoc}
+     * Maximum length of any given databse identifier, like tables or column names.
+     *
+     * @return int
      */
     public function getMaxIdentifierLength()
     {
@@ -727,23 +745,24 @@ LEFT JOIN user_cons_columns r_cols
     }
 
     /**
-     * {@inheritDoc}
+     * Whether the platform supports sequences.
+     *
+     * @return boolean
      */
     public function supportsSequences()
     {
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function supportsForeignKeyOnUpdate()
     {
         return false;
     }
 
     /**
-     * {@inheritDoc}
+     * Whether the platform supports releasing savepoints.
+     *
+     * @return boolean
      */
     public function supportsReleaseSavepoints()
     {
@@ -751,7 +770,7 @@ LEFT JOIN user_cons_columns r_cols
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritdoc
      */
     public function getTruncateTableSQL($tableName, $cascade = false)
     {
@@ -759,16 +778,15 @@ LEFT JOIN user_cons_columns r_cols
     }
 
     /**
-     * {@inheritDoc}
+     * This is for test reasons, many vendors have special requirements for dummy statements.
+     *
+     * @return string
      */
     public function getDummySelectSQL()
     {
         return 'SELECT 1 FROM DUAL';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     protected function initializeDoctrineTypeMappings()
     {
         $this->doctrineTypeMapping = array(
@@ -797,23 +815,23 @@ LEFT JOIN user_cons_columns r_cols
     }
 
     /**
-     * {@inheritDoc}
+     * Generate SQL to release a savepoint
+     *
+     * @param string $savepoint
+     * @return string
      */
     public function releaseSavePoint($savepoint)
     {
         return '';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     protected function getReservedKeywordsClass()
     {
         return 'Doctrine\DBAL\Platforms\Keywords\OracleKeywords';
     }
 
     /**
-     * {@inheritDoc}
+     * Gets the SQL Snippet used to declare a BLOB column type.
      */
     public function getBlobTypeDeclarationSQL(array $field)
     {

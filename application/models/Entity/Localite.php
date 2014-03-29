@@ -1,61 +1,189 @@
 <?php
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/**
- * Description of Localite 
- *
- * @author MedAmineGharbi
- */
-
-
 namespace Entity;
 
-/**
- * @Entity
- */
+use Doctrine\ORM\Mapping as ORM;
 
-class Localite    {
-        /**
-     * @Id
-     * @Column(type="integer", unique=true, nullable=false)
-     * @GeneratedValue(strategy="AUTO")
-     */
-    protected $id ;
+/**
+ * Entity\Localite
+ *
+ * @ORM\Table(name="Localite")
+ * @ORM\Entity
+ */
+class Localite
+{
     /**
+     * @var integer $id
      *
-     * @Column(type="string", length=32, nullable=false) 
-     */    
+     * @ORM\Column(name="id", type="integer", precision=0, scale=0, nullable=false, unique=true)
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="IDENTITY")
+     */
+    private $id;
+
+    /**
+     * @var string $nom
+     *
+     * @ORM\Column(name="nom", type="string", length=32, precision=0, scale=0, nullable=false, unique=false)
+     */
     private $nom;
+
     /**
+     * @var smallint $CodePostal
      *
-     * @Column(type="smallint" ,nullable=false) 
-     */    
-    private $CodePostal;
-    /**
-     *
-     * @ManyToOne(targetEntity="Gouvernorat", inversedBy="localites")
+     * @ORM\Column(name="CodePostal", type="smallint", precision=0, scale=0, nullable=false, unique=false)
      */
-    private $gouvernerat;    
+    private $CodePostal;
+
     /**
+     * @var Entity\Gouvernorat
      *
-     *  @OneToOne(targetEntity="CoordonneeGPS")
+     * @ORM\ManyToOne(targetEntity="Entity\Gouvernorat", inversedBy="localites")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="gouvernerat_id", referencedColumnName="id")
+     * })
+     */
+    private $gouvernerat;
+
+    /**
+     * @var Entity\CoordonneeGPS
+     *
+     * @ORM\OneToOne(targetEntity="Entity\CoordonneeGPS")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="coordonnegps_id", referencedColumnName="id", unique=true)
+     * })
      */
     private $coordonnegps;
-    
-    
+
     /**
-     * @OneToMany(targetEntity="Adresse", mappedBy="localite")
+     * @var \Doctrine\Common\Collections\ArrayCollection
+     *
+     * @ORM\OneToMany(targetEntity="Entity\Adresse", mappedBy="localite")
      */
     private $pharmacies;
-            
+
+    public function __construct()
+    {
+        $this->pharmacies = new \Doctrine\Common\Collections\ArrayCollection();
+    }
     
-    
-    function __construct() {
-                 
+    /**
+     * Get id
+     *
+     * @return integer 
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Set nom
+     *
+     * @param string $nom
+     * @return Localite
+     */
+    public function setNom($nom)
+    {
+        $this->nom = $nom;
+        return $this;
+    }
+
+    /**
+     * Get nom
+     *
+     * @return string 
+     */
+    public function getNom()
+    {
+        return $this->nom;
+    }
+
+    /**
+     * Set CodePostal
+     *
+     * @param smallint $codePostal
+     * @return Localite
+     */
+    public function setCodePostal($codePostal)
+    {
+        $this->CodePostal = $codePostal;
+        return $this;
+    }
+
+    /**
+     * Get CodePostal
+     *
+     * @return smallint 
+     */
+    public function getCodePostal()
+    {
+        return $this->CodePostal;
+    }
+
+    /**
+     * Set gouvernerat
+     *
+     * @param Entity\Gouvernorat $gouvernerat
+     * @return Localite
+     */
+    public function setGouvernerat(\Entity\Gouvernorat $gouvernerat = null)
+    {
+        $this->gouvernerat = $gouvernerat;
+        return $this;
+    }
+
+    /**
+     * Get gouvernerat
+     *
+     * @return Entity\Gouvernorat 
+     */
+    public function getGouvernerat()
+    {
+        return $this->gouvernerat;
+    }
+
+    /**
+     * Set coordonnegps
+     *
+     * @param Entity\CoordonneeGPS $coordonnegps
+     * @return Localite
+     */
+    public function setCoordonnegps(\Entity\CoordonneeGPS $coordonnegps = null)
+    {
+        $this->coordonnegps = $coordonnegps;
+        return $this;
+    }
+
+    /**
+     * Get coordonnegps
+     *
+     * @return Entity\CoordonneeGPS 
+     */
+    public function getCoordonnegps()
+    {
+        return $this->coordonnegps;
+    }
+
+    /**
+     * Add pharmacies
+     *
+     * @param Entity\Adresse $pharmacies
+     * @return Localite
+     */
+    public function addAdresse(\Entity\Adresse $pharmacies)
+    {
+        $this->pharmacies[] = $pharmacies;
+        return $this;
+    }
+
+    /**
+     * Get pharmacies
+     *
+     * @return Doctrine\Common\Collections\Collection 
+     */
+    public function getPharmacies()
+    {
+        return $this->pharmacies;
     }
 }

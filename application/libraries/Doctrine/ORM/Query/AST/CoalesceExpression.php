@@ -13,7 +13,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
+ * and is licensed under the LGPL. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
@@ -23,7 +23,7 @@ namespace Doctrine\ORM\Query\AST;
  * CoalesceExpression ::= "COALESCE" "(" ScalarExpression {"," ScalarExpression}* ")"
  *
  * @since   2.1
- * 
+ * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  * @link    www.doctrine-project.org
  * @author  Benjamin Eberlei <kontakt@beberlei.de>
  * @author  Guilherme Blanco <guilhermeblanco@hotmail.com>
@@ -32,22 +32,14 @@ namespace Doctrine\ORM\Query\AST;
  */
 class CoalesceExpression extends Node
 {
-    /**
-     * @var array
-     */
     public $scalarExpressions = array();
 
-    /**
-     * @param array $scalarExpressions
-     */
+
     public function __construct(array $scalarExpressions)
     {
         $this->scalarExpressions  = $scalarExpressions;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function dispatch($sqlWalker)
     {
         return $sqlWalker->walkCoalesceExpression($this);

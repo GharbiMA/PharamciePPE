@@ -13,30 +13,26 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
+ * and is licensed under the LGPL. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
 namespace Doctrine\ORM\Query\Exec;
 
-use Doctrine\DBAL\Connection;
-use Doctrine\ORM\Query\AST\SelectStatement;
-use Doctrine\ORM\Query\SqlWalker;
+use Doctrine\DBAL\Connection,
+    Doctrine\ORM\Query\AST\SelectStatement,
+    Doctrine\ORM\Query\SqlWalker;
 
 /**
  * Executor that executes the SQL statement for simple DQL SELECT statements.
  *
- * @license     http://www.opensource.org/licenses/mit-license.php MIT
+ * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
  * @author      Roman Borschel <roman@code-factory.org>
  * @link        www.doctrine-project.org
  * @since       2.0
  */
 class SingleSelectExecutor extends AbstractSqlExecutor
 {
-    /**
-     * @param \Doctrine\ORM\Query\AST\SelectStatement $AST
-     * @param \Doctrine\ORM\Query\SqlWalker           $sqlWalker
-     */
     public function __construct(SelectStatement $AST, SqlWalker $sqlWalker)
     {
         $this->_sqlStatements = $sqlWalker->walkSelectStatement($AST);

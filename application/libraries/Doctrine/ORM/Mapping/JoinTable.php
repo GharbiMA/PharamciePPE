@@ -13,7 +13,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
+ * and is licensed under the LGPL. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
@@ -21,27 +21,16 @@ namespace Doctrine\ORM\Mapping;
 
 /**
  * @Annotation
- * @Target({"PROPERTY","ANNOTATION"})
+ * @Target("PROPERTY")
  */
 final class JoinTable implements Annotation
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     public $name;
-
-    /**
-     * @var string
-     */
+    /** @var string */
     public $schema;
-
-    /**
-     * @var array<\Doctrine\ORM\Mapping\JoinColumn>
-     */
+    /** @var array<\Doctrine\ORM\Mapping\JoinColumn> */
     public $joinColumns = array();
-
-    /**
-     * @var array<\Doctrine\ORM\Mapping\JoinColumn>
-     */
+    /** @var array<\Doctrine\ORM\Mapping\JoinColumn> */
     public $inverseJoinColumns = array();
 }

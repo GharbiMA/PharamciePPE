@@ -13,7 +13,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
+ * and is licensed under the LGPL. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
@@ -27,7 +27,7 @@ class ArrayStatement implements \IteratorAggregate, ResultStatement
     private $data;
     private $columnCount = 0;
     private $num = 0;
-    private $defaultFetchMode = PDO::FETCH_BOTH;
+    private $defaultFetchStyle = PDO::FETCH_BOTH;
 
     public function __construct(array $data)
     {
@@ -47,45 +47,36 @@ class ArrayStatement implements \IteratorAggregate, ResultStatement
         return $this->columnCount;
     }
 
-    public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
+    public function setFetchMode($fetchStyle)
     {
-        if ($arg2 !== null || $arg3 !== null) {
-            throw new \InvalidArgumentException("Caching layer does not support 2nd/3rd argument to setFetchMode()");
-        }
-
-        $this->defaultFetchMode = $fetchMode;
+        $this->defaultFetchStyle = $fetchStyle;
     }
 
     public function getIterator()
     {
-        $data = $this->fetchAll();
+        $data = $this->fetchAll($this->defaultFetchStyle);
         return new \ArrayIterator($data);
     }
 
-    public function fetch($fetchMode = null)
+    public function fetch($fetchStyle = PDO::FETCH_BOTH)
     {
         if (isset($this->data[$this->num])) {
             $row = $this->data[$this->num++];
-            $fetchMode = $fetchMode ?: $this->defaultFetchMode;
-            if ($fetchMode === PDO::FETCH_ASSOC) {
+            if ($fetchStyle === PDO::FETCH_ASSOC) {
                 return $row;
-            } else if ($fetchMode === PDO::FETCH_NUM) {
+            } else if ($fetchStyle === PDO::FETCH_NUM) {
                 return array_values($row);
-            } else if ($fetchMode === PDO::FETCH_BOTH) {
+            } else if ($fetchStyle === PDO::FETCH_BOTH) {
                 return array_merge($row, array_values($row));
-            } else if ($fetchMode === PDO::FETCH_COLUMN) {
-                return reset($row);
-            } else {
-                throw new \InvalidArgumentException("Invalid fetch-style given for fetching result.");
             }
         }
         return false;
     }
 
-    public function fetchAll($fetchMode = null)
+    public function fetchAll($fetchStyle = PDO::FETCH_BOTH)
     {
         $rows = array();
-        while ($row = $this->fetch($fetchMode)) {
+        while ($row = $this->fetch($fetchStyle)) {
             $rows[] = $row;
         }
         return $rows;

@@ -13,13 +13,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license. For more information, see
+ * and is licensed under the LGPL. For more information, see
  * <http://www.doctrine-project.org>.
  */
 
 namespace Doctrine\ORM\Proxy;
 
-use Doctrine\Common\Proxy\Proxy as BaseProxy;
+use Doctrine\Common\Persistence\Proxy as BaseProxy;
 
 /**
  * Interface for proxy classes.
@@ -27,6 +27,4 @@ use Doctrine\Common\Proxy\Proxy as BaseProxy;
  * @author Roman Borschel <roman@code-factory.org>
  * @since 2.0
  */
-interface Proxy extends BaseProxy
-{
-}
+interface Proxy extends BaseProxy {}
