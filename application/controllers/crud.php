@@ -28,7 +28,7 @@ class crud extends CI_Controller {
         
         $crud = new Grocery_CRUD();
         $crud->set_table("pharmacie");
-        //$crud->set_theme('datatables');
+        $crud->set_theme('datatables');
         $crud->set_primary_key("id");        
         $crud->set_subject('Pharmacie');
         $crud->set_relation("adresse_id", "adresse", "{numero} {rue} {cite}");        
@@ -41,7 +41,7 @@ class crud extends CI_Controller {
         
         $crud = new Grocery_CRUD();
         $crud->set_table("adresse");
-        //$crud->set_theme('datatables');
+        $crud->set_theme('datatables');
         $crud->set_primary_key("id");        
         $crud->set_subject('Adresse');
         $crud->set_relation("localite_id", "localite", "{nom} ({CodePostal})");        
@@ -103,25 +103,30 @@ class crud extends CI_Controller {
         $this->load->view('PharmInsert/crudview', $output);
     }
     
-    public function g(){
-        $cord = new Entity\CoordonneeGPS();
-        $cord = $this->em->find('Entity\CoordonneeGPS',2);
-        echo $cord->getLattitude();
-        echo 'DDDDDDDDDDDD';
-        
+    public function gardes($pharmacie_id = null){
+        $cord = new Entity\Pharmacie();
+        $cord = $this->em->find('Entity\Pharmacie',1);
+        if ($cord){
+        $gardes = $cord->getGardes();
+        foreach ($gardes as $g){            
+            echo '<br>';
+            echo $g->getDate()->format('Y m d ') ."  ==> ".$g->getPharmacie()->getNom();
+            echo '<br>';
+            }          
+        }
         
     }
 
-//    public function  add(){
-//        
-//        $ph =new Entity\CoordonneeGPS;
-//        $ph->setLattitude(time());
-//        $ph->setLongitude(time());
-//        $this->em->persist($ph);
-//        $this->em->flush();
-//        echo("kkkkkkkkkkkk");
-//        
-//    }               
+    public function  addCoordonneeGPS (){
+        
+        $local =new Entity\CoordonneeGPS;
+        $local->setLattitude(time());
+        $local->setLongitude(time());
+        $this->em->persist($local);
+        $this->em->flush();
+        echo("CoordonneeGPS saved ");
+        
+    }               
     
 }
 
