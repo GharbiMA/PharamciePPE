@@ -32,10 +32,42 @@ class crud extends CI_Controller {
         $crud->set_primary_key("id");        
         $crud->set_subject('Pharmacie');
         $crud->set_relation("adresse_id", "adresse", "{numero} {rue} {cite}");        
+        $crud->set_relation("coordonneegps_id", "coordonneegps", "({lattitude},{longitude})");
+        $crud->display_as("coordonneegps_id" , "Coordonnee GPS ");        
+        $crud->display_as("tel" , "Telephone");
+        $crud->add_fields('nom','tel','type','gouvernorat','localite');
+        $crud->display_as("gouvernorat", "Gouvernorat");
+        
+                
+        $listegov = array();        
+        $repo = $this->em->getRepository('Entity\Gouvernorat')->findAll();
+        foreach ($repo as $key => $value) {            
+            $listegov[$value->getId()] = $value->getNom();            
+        }         
+        $crud->field_type('gouvernorat','dropdown',$listegov ); 
+        $listegov = array();        
+        $repo = $this->em->getRepository('Entity\Localite')->findAll();        
+        foreach ($repo as $key => $value) {            
+            $listegov[] = $value->getNom()." (".$value->getCodePostal()." )";            
+        }         
+        $crud->field_type('localite','dropdown',$listegov );
+        
+        
+        //$crud->callback_add_field("coordonneegps_id", array($this,'adresse_callback') );
+        
+        
         //$crud->set_crud_url_path(site_url('pharmacie'));
         $output = $crud->render();                                    
         $this->_example_output($output);
     }
+    function adresse_callback()
+    {        
+            $this->load->helper('form');
+            $options = array('' => 'Please select', 'Beige' => 'Beige' , 'Black' => 'Black', 'Blue' => 'Blue');
+            return form_dropdown('adresse', $options,'',"id='color'");
+             //return '<input type="text" maxlength="50" value="" name="adresse" style="width:462px">';
+    }
+    
     
     function adresse() {
         
@@ -56,8 +88,8 @@ class crud extends CI_Controller {
         $crud->set_table("localite");
         $crud->set_primary_key("id");        
         $crud->set_subject('Localite');        
-        $crud->set_relation("gouvernerat_id", "gouvernorat", "nom");
-        $crud->display_as("gouvernerat_id", "Gouvernerat");
+        $crud->set_relation("gouvernorat_id", "gouvernorat", "nom");
+        $crud->display_as("gouvernorat_id", "Gouvernorat");
         $crud->display_as("coordonnegps_id", "CoordonneGPS");
         $crud->set_relation("coordonnegps_id", "coordonneegps", "({lattitude} ,{longitude})") ;
         
@@ -73,7 +105,7 @@ class crud extends CI_Controller {
         $crud = new Grocery_CRUD();
         $crud->set_table("gouvernorat");
         //$crud->set_theme('datatables');
-        $crud->set_primary_key("id");        
+        //$crud->set_primary_key("id");        
         $crud->set_subject('Gouvernorat');        
         //$crud->set_crud_url_path(site_url('pharmacie'));
         $output = $crud->render();                                    
@@ -104,18 +136,46 @@ class crud extends CI_Controller {
     }
     
     public function gardes($pharmacie_id = null){
-        $cord = new Entity\Pharmacie();
-        $cord = $this->em->find('Entity\Pharmacie',1);
-        if ($cord){
-        $gardes = $cord->getGardes();
+        $pharm = new Entity\Pharmacie();
+        $pharm = $this->em->find('Entity\Pharmacie',1);
+        if ($pharm){
+        $gardes = $pharm->getGardes();
         foreach ($gardes as $g){            
             echo '<br>';
-            echo $g->getDate()->format('Y m d ') ."  ==> ".$g->getPharmacie()->getNom();
+            echo $g->getDate()->format('Y m d ') ."  ==> ".$pharm->getNom();
             echo '<br>';
             }          
         }
+        echo "<br>****************<br>";
+        
+        
         
     }
+    /* CREATE VIEW newpharmacie 
+AS
+SELECT `pharmacie`.`id`,`pharmacie`.`nom` AS nompharmacie, `pharmacie`.`tel`,`pharmacie`.`type`,`infosupplimentaire`.`specialite`,`infosupplimentaire`.`information`,`coordonneegps`.`longitude`,
+`coordonneegps`.`lattitude`,`adresse`.`numero`,`adresse`.`rue`,`localite`.`nom` AS nomlocalite ,`localite`.`CodePostal`,
+`gouvernorat`.`nom` AS nomgouvernorat  FROM pharmacie
+LEFT JOIN `pharmacie_db`.`adresse` ON `pharmacie`.`adresse_id` = `adresse`.`id` 
+LEFT JOIN `pharmacie_db`.`coordonneegps` ON `pharmacie`.`coordonneegps_id` = `coordonneegps`.`id` 
+LEFT JOIN `pharmacie_db`.`infosupplimentaire` ON `pharmacie`.`id` = `infosupplimentaire`.`owner_id` 
+LEFT JOIN `pharmacie_db`.`localite` ON `coordonneegps`.`id` = `localite`.`coordonnegps_id` 
+LEFT JOIN `pharmacie_db`.`gouvernorat` ON `localite`.`gouvernerat_id` = `gouvernorat`.`id`; 
+     * 
+     */
+    
+    function view() {
+        
+        $crud = new Grocery_CRUD();
+        $crud->set_table("newpharmacie");
+        $crud->set_theme('datatables');
+        $crud->set_primary_key("id");                        
+        //$crud->set_crud_url_path(site_url('pharmacie'));
+        $output = $crud->render();                                    
+        $this->_example_output($output);
+    }
+    
+    
 
     public function  addCoordonneeGPS (){
         
@@ -126,8 +186,15 @@ class crud extends CI_Controller {
         $this->em->flush();
         echo("CoordonneeGPS saved ");
         
+        
     }               
-    
+    /**
+     * $seo_results = array();
+foreach ($this->db->get('db_projects')->result() as $row) {
+    $seo_results[$row->seo] = $row->seo;
+} 
+$crud->field_type('seo_url', 'dropdown', $seo_results);
+     */
 }
 
 

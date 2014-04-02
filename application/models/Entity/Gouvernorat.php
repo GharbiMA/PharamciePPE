@@ -31,7 +31,7 @@ class Gouvernorat
     /**
      * @var \Doctrine\Common\Collections\ArrayCollection
      *
-     * @ORM\OneToMany(targetEntity="Entity\Localite", mappedBy="gouvernerat")
+     * @ORM\OneToMany(targetEntity="Entity\Localite", mappedBy="gouvernorat")
      */
     private $localites;
 
@@ -40,7 +40,8 @@ class Gouvernorat
         $this->localites = new \Doctrine\Common\Collections\ArrayCollection();
     }
     
-    /**
+
+        /**
      * Get id
      *
      * @return integer 
