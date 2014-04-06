@@ -28,14 +28,15 @@ class crud extends CI_Controller {
         
         $crud = new Grocery_CRUD();
         $crud->set_table("pharmacie");
-        $crud->set_theme('datatables');
+        $crud->set_theme('twitter-bootstrap');
         $crud->set_primary_key("id");        
         $crud->set_subject('Pharmacie');
         $crud->set_relation("adresse_id", "adresse", "{numero} {rue} {cite}");        
         $crud->set_relation("coordonneegps_id", "coordonneegps", "({lattitude},{longitude})");
         $crud->display_as("coordonneegps_id" , "Coordonnee GPS ");        
         $crud->display_as("tel" , "Telephone");
-        $crud->add_fields('nom','tel','type','gouvernorat','localite');
+        $crud->columns('nom','tel','type','gouvernorat','localite' );
+        $crud->add_fields('nom','tel','type','gouvernorat','localite' , 'map');
         $crud->display_as("gouvernorat", "Gouvernorat");
         
                 
@@ -53,19 +54,17 @@ class crud extends CI_Controller {
         $crud->field_type('localite','dropdown',$listegov );
         
         
-        //$crud->callback_add_field("coordonneegps_id", array($this,'adresse_callback') );
+        //$crud->callback_add_field("map", array($this,'map_callback') );
         
         
         //$crud->set_crud_url_path(site_url('pharmacie'));
         $output = $crud->render();                                    
         $this->_example_output($output);
     }
-    function adresse_callback()
-    {        
-            $this->load->helper('form');
-            $options = array('' => 'Please select', 'Beige' => 'Beige' , 'Black' => 'Black', 'Blue' => 'Blue');
-            return form_dropdown('adresse', $options,'',"id='color'");
-             //return '<input type="text" maxlength="50" value="" name="adresse" style="width:462px">';
+    function map_callback()
+    {           
+        
+             return '';
     }
     
     

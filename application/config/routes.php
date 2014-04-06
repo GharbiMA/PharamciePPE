@@ -39,12 +39,13 @@
 */
 //  $route['url'] = "controller/method/argument";
 
-$route['default_controller'] = "TestGrocery/pharmacie";
+$route['default_controller'] = "crud/pharmacie";
 $route['404_override'] = '';
 
 $route ['list'] = 'TestGrocery/pharmacie';
 
 $route ['crud/pharmacie'] = "crud/pharmacie";
+$route ['map'] = "map";
 //$route ['pharmacie/(:any)'] = "crud/pharmacie/$1";
 //$route ['(:any)/(:any)'] = "crud/$1/$2";
 
