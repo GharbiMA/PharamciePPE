@@ -39,7 +39,7 @@
 */
 //  $route['url'] = "controller/method/argument";
 
-$route['default_controller'] = "crud/pharmacie";
+$route['default_controller'] = "crud/view";
 $route['404_override'] = '';
 
 $route ['list'] = 'TestGrocery/pharmacie';
@@ -47,7 +47,7 @@ $route ['list'] = 'TestGrocery/pharmacie';
 $route ['crud/pharmacie'] = "crud/pharmacie";
 $route ['map'] = "map";
 //$route ['pharmacie/(:any)'] = "crud/pharmacie/$1";
-//$route ['(:any)/(:any)'] = "crud/$1/$2";
+$route ['crud/(:any)'] = "crud/$1";
 
 
 

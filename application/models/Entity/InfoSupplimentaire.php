@@ -1,40 +1,47 @@
 <?php
 
-
-
 namespace Entity;
+
 use Doctrine\ORM\Mapping as ORM;
+
 /**
+ * Entity\InfoSupplimentaire
+ *
+ * @ORM\Table(name="InfoSupplimentaire")
  * @ORM\Entity
  */
-class InfoSupplimentaire   {
+class InfoSupplimentaire
+{
     /**
+     * @var integer $id
+     *
+     * @ORM\Column(name="id", type="integer", precision=0, scale=0, nullable=false, unique=true)
      * @ORM\Id
-     * @ORM\Column(type="integer", unique=true, nullable=false)
-     * @ORM\GeneratedValue(strategy="AUTO")
+     * @ORM\GeneratedValue(strategy="IDENTITY")
      */
-    private $id ;
+    private $id;
+
     /**
+     * @var string $specialite
      *
-     * @ORM\Column(type="string", length=40, nullable=true) 
-     */        
-    private $specialite;    
+     * @ORM\Column(name="specialite", type="string", length=40, precision=0, scale=0, nullable=true, unique=false)
+     */
+    private $specialite;
+
     /**
+     * @var text $information
      *
-     * @ORM\Column(type="text", nullable=true) 
-     */    
+     * @ORM\Column(name="information", type="text", precision=0, scale=0, nullable=true, unique=false)
+     */
     private $information;
-    
+
     /**
+     * @var Entity\Pharmacie
      *
-     * @ORM\OneToOne(targetEntity="Pharmacie",inversedBy="infosuppliementaire")
+     * @ORM\OneToOne(targetEntity="Entity\Pharmacie", mappedBy="infosuppliementaire")
      */
     private $owner;
-    
-    
-    function __construct() {
-                 
-    }
+
 
     /**
      * Get id

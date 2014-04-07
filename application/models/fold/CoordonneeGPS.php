@@ -5,15 +5,15 @@ namespace Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Entity\CoordonneeGPS
+ * CoordonneeGPS
  *
  * @ORM\Table(name="CoordonneeGPS")
- * @ORM\Entity(repositoryClass="Entity\CoordonneeGPS")
+ * @ORM\Entity(repositoryClass="Entity\CoordonneeGPS")En
  */
 class CoordonneeGPS
 {
     /**
-     * @var integer $id
+     * @var integer
      *
      * @ORM\Column(name="id", type="integer", precision=0, scale=0, nullable=false, unique=true)
      * @ORM\Id
@@ -22,14 +22,14 @@ class CoordonneeGPS
     private $id;
 
     /**
-     * @var string $longitude
+     * @var string
      *
      * @ORM\Column(name="longitude", type="string", length=32, precision=0, scale=0, nullable=false, unique=false)
      */
     private $longitude;
 
     /**
-     * @var string $lattitude
+     * @var string
      *
      * @ORM\Column(name="lattitude", type="string", length=32, precision=0, scale=0, nullable=false, unique=false)
      */
@@ -50,11 +50,13 @@ class CoordonneeGPS
      * Set longitude
      *
      * @param string $longitude
+     *
      * @return CoordonneeGPS
      */
     public function setLongitude($longitude)
     {
         $this->longitude = $longitude;
+
         return $this;
     }
 
@@ -72,11 +74,13 @@ class CoordonneeGPS
      * Set lattitude
      *
      * @param string $lattitude
+     *
      * @return CoordonneeGPS
      */
     public function setLattitude($lattitude)
     {
         $this->lattitude = $lattitude;
+
         return $this;
     }
 
@@ -89,4 +93,5 @@ class CoordonneeGPS
     {
         return $this->lattitude;
     }
+    
 }

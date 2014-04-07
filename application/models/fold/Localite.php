@@ -1,72 +1,64 @@
 <?php
 
-namespace Entity;
-
-use Doctrine\ORM\Mapping as ORM;
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 
 /**
- * Entity\Localite
+ * Description of Localite 
  *
- * @ORM\Table(name="Localite")
+ * @ORM\author MedAmineGharbi
+ */
+
+
+namespace Entity;
+use \Doctrine\ORM\Mapping as ORM;
+/**
  * @ORM\Entity
  */
-class Localite
-{
-    /**
-     * @var integer $id
-     *
-     * @ORM\Column(name="id", type="integer", precision=0, scale=0, nullable=false, unique=true)
+
+class Localite    {
+        /**
      * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
+     * @ORM\Column(type="integer", unique=true, nullable=false)
+     * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
-
+    private $id ;
     /**
-     * @var string $nom
      *
-     * @ORM\Column(name="nom", type="string", length=32, precision=0, scale=0, nullable=false, unique=false)
-     */
+     * @ORM\Column(type="string", length=32, nullable=false) 
+     */    
     private $nom;
-
     /**
-     * @var smallint $CodePostal
      *
-     * @ORM\Column(name="CodePostal", type="smallint", precision=0, scale=0, nullable=false, unique=false)
-     */
+     * @ORM\Column(type="smallint" ,nullable=false) 
+     */    
     private $CodePostal;
-
     /**
-     * @var Entity\Gouvernorat
      *
-     * @ORM\ManyToOne(targetEntity="Entity\Gouvernorat", inversedBy="localites")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="gouvernorat_id", referencedColumnName="id")
-     * })
+     * @ORM\ManyToOne(targetEntity="Gouvernorat", inversedBy="localites")
      */
-    private $gouvernorat;
-
+    private $gouvernorat;    
     /**
-     * @var Entity\CoordonneeGPS
      *
-     * @ORM\OneToOne(targetEntity="Entity\CoordonneeGPS")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="coordonnegps_id", referencedColumnName="id", unique=true)
-     * })
+     *  @ORM\OneToOne(targetEntity="CoordonneeGPS")
      */
     private $coordonnegps;
-
+    
+    
     /**
-     * @var \Doctrine\Common\Collections\ArrayCollection
-     *
-     * @ORM\OneToMany(targetEntity="Entity\Adresse", mappedBy="localite")
+     * @ORM\OneToMany(targetEntity="Adresse", mappedBy="localite")
      */
     private $pharmacies;
-
-    public function __construct()
-    {
-        $this->pharmacies = new \Doctrine\Common\Collections\ArrayCollection();
-    }
+            
     
+    
+    function __construct() {
+                 
+    }
+
     /**
      * Get id
      *

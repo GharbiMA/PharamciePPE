@@ -5,7 +5,7 @@ namespace Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Entity\Garde
+ * Garde
  *
  * @ORM\Table(name="Garde")
  * @ORM\Entity
@@ -13,7 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
 class Garde
 {
     /**
-     * @var integer $id
+     * @var integer
      *
      * @ORM\Column(name="id", type="integer", length=32, precision=0, scale=0, nullable=false, unique=true)
      * @ORM\Id
@@ -22,18 +22,18 @@ class Garde
     private $id;
 
     /**
-     * @var date $date
+     * @var \DateTime
      *
      * @ORM\Column(name="date", type="date", precision=0, scale=0, nullable=false, unique=false)
      */
     private $date;
 
     /**
-     * @var Entity\Pharmacie
+     * @var \Entity\Pharmacie
      *
      * @ORM\ManyToOne(targetEntity="Entity\Pharmacie", inversedBy="gardes")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="pharmacie_id", referencedColumnName="id", nullable=true)
+     *   @ORM\JoinColumn(name="pharmacie_id", referencedColumnName="id")
      * })
      */
     private $pharmacie;
@@ -52,19 +52,21 @@ class Garde
     /**
      * Set date
      *
-     * @param date $date
+     * @param \DateTime $date
+     *
      * @return Garde
      */
     public function setDate($date)
     {
         $this->date = $date;
+
         return $this;
     }
 
     /**
      * Get date
      *
-     * @return date 
+     * @return \DateTime 
      */
     public function getDate()
     {
@@ -74,19 +76,21 @@ class Garde
     /**
      * Set pharmacie
      *
-     * @param Entity\Pharmacie $pharmacie
+     * @param \Entity\Pharmacie $pharmacie
+     *
      * @return Garde
      */
     public function setPharmacie(\Entity\Pharmacie $pharmacie = null)
     {
         $this->pharmacie = $pharmacie;
+
         return $this;
     }
 
     /**
      * Get pharmacie
      *
-     * @return Entity\Pharmacie 
+     * @return \Entity\Pharmacie 
      */
     public function getPharmacie()
     {

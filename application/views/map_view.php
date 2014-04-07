@@ -71,6 +71,7 @@
             <input type="submit" name="submit" id="submitbutton" value="Submit Data">
             <input type="hidden" name="latlng" id="latlngfield">
         </fieldset>
+           <?php echo 'herehere'; ?>
 </form>        
         
         

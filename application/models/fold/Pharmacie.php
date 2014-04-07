@@ -1,13 +1,14 @@
 <?php
 
-namespace Entity;
 
+namespace Entity;
 use Doctrine\ORM\Mapping as ORM;
+
 
 /**
  * Entity\Pharmacie
  *
- * @ORM\Table(name="Pharmacie")
+ * 
  * @ORM\Entity
  */
 class Pharmacie
@@ -47,7 +48,7 @@ class Pharmacie
      *
      * @ORM\OneToOne(targetEntity="Entity\CoordonneeGPS")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="coordonneegps_id", referencedColumnName="id", unique=true, nullable=true)
+     *   @ORM\JoinColumn(name="coordonneegps_id", referencedColumnName="id", unique=true)
      * })
      */
     private $coordonneegps;
@@ -56,19 +57,17 @@ class Pharmacie
      * @var Entity\InfoSupplimentaire
      *
      * @ORM\OneToOne(targetEntity="Entity\InfoSupplimentaire", inversedBy="owner")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="infosuppliementaire_id", referencedColumnName="id", unique=true)
-     * })
      */
     private $infosuppliementaire;
 
     /**
      * @var Entity\Adresse
-     *
+     *  
      * @ORM\OneToOne(targetEntity="Entity\Adresse", inversedBy="pharmacie")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="adresse_id", referencedColumnName="id", unique=true, nullable=true)
+     *   @ORM\JoinColumn(name="adresse_id", referencedColumnName="id", unique=true)
      * })
+     * 
      */
     private $adresse;
 

@@ -5,7 +5,7 @@ namespace Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Entity\Adresse
+ * Adresse
  *
  * @ORM\Table(name="Adresses")
  * @ORM\Entity
@@ -13,7 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
 class Adresse
 {
     /**
-     * @var integer $id
+     * @var integer
      *
      * @ORM\Column(name="id", type="integer", precision=0, scale=0, nullable=false, unique=true)
      * @ORM\Id
@@ -22,38 +22,38 @@ class Adresse
     private $id;
 
     /**
-     * @var smallint $numero
+     * @var integer
      *
      * @ORM\Column(name="numero", type="smallint", precision=0, scale=0, nullable=false, unique=false)
      */
     private $numero;
 
     /**
-     * @var string $rue
+     * @var string
      *
      * @ORM\Column(name="rue", type="string", length=32, precision=0, scale=0, nullable=false, unique=false)
      */
     private $rue;
 
     /**
-     * @var string $cite
+     * @var string
      *
      * @ORM\Column(name="cite", type="string", length=32, precision=0, scale=0, nullable=false, unique=false)
      */
     private $cite;
 
     /**
-     * @var Entity\Localite
+     * @var \Entity\Localite
      *
      * @ORM\ManyToOne(targetEntity="Entity\Localite", inversedBy="pharmacies")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="localite_id", referencedColumnName="id", nullable=true)
+     *   @ORM\JoinColumn(name="localite_id", referencedColumnName="id")
      * })
      */
     private $localite;
 
     /**
-     * @var Entity\Pharmacie
+     * @var \Entity\Pharmacie
      *
      * @ORM\OneToOne(targetEntity="Entity\Pharmacie", mappedBy="adresse")
      */
@@ -73,19 +73,21 @@ class Adresse
     /**
      * Set numero
      *
-     * @param smallint $numero
+     * @param integer $numero
+     *
      * @return Adresse
      */
     public function setNumero($numero)
     {
         $this->numero = $numero;
+
         return $this;
     }
 
     /**
      * Get numero
      *
-     * @return smallint 
+     * @return integer 
      */
     public function getNumero()
     {
@@ -96,11 +98,13 @@ class Adresse
      * Set rue
      *
      * @param string $rue
+     *
      * @return Adresse
      */
     public function setRue($rue)
     {
         $this->rue = $rue;
+
         return $this;
     }
 
@@ -118,11 +122,13 @@ class Adresse
      * Set cite
      *
      * @param string $cite
+     *
      * @return Adresse
      */
     public function setCite($cite)
     {
         $this->cite = $cite;
+
         return $this;
     }
 
@@ -139,19 +145,21 @@ class Adresse
     /**
      * Set localite
      *
-     * @param Entity\Localite $localite
+     * @param \Entity\Localite $localite
+     *
      * @return Adresse
      */
     public function setLocalite(\Entity\Localite $localite = null)
     {
         $this->localite = $localite;
+
         return $this;
     }
 
     /**
      * Get localite
      *
-     * @return Entity\Localite 
+     * @return \Entity\Localite 
      */
     public function getLocalite()
     {
@@ -161,19 +169,21 @@ class Adresse
     /**
      * Set pharmacie
      *
-     * @param Entity\Pharmacie $pharmacie
+     * @param \Entity\Pharmacie $pharmacie
+     *
      * @return Adresse
      */
     public function setPharmacie(\Entity\Pharmacie $pharmacie = null)
     {
         $this->pharmacie = $pharmacie;
+
         return $this;
     }
 
     /**
      * Get pharmacie
      *
-     * @return Entity\Pharmacie 
+     * @return \Entity\Pharmacie 
      */
     public function getPharmacie()
     {
