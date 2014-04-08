@@ -28,7 +28,7 @@ a:hover
 </head>
 <body>
 	<div>
-		<a href='<?php echo site_url('crud/pharmacie')?>'>Pharmacies</a> |
+		<a href='<?php echo site_url('crud/viewpharmacie')?>'>Pharmacies</a> |
 		<a href='<?php echo site_url('crud/gouvernorat')?>'>Gouvernerats</a> |
 		<a href='<?php echo site_url('crud/localite')?>'>Localités</a> |
 		<a href='<?php echo site_url('crud/adresse')?>'>Adresses</a> | 

@@ -118,7 +118,7 @@ class crud extends CI_Controller {
         $crud->set_primary_key("id");        
         $crud->set_subject('Gardes');
         $crud->display_as("pharmacie_id","Pharmacie");
-        $crud->set_relation("pharmacie_id", "pharmacie", "{nom}");        
+        $crud->set_relation("pharmacie_id", "pharmacie", "{nom} ");        
         $crud->required_fields("date","pharmacie_id");
         
         //$crud->set_crud_url_path(site_url('pharmacie'));
@@ -150,33 +150,36 @@ class crud extends CI_Controller {
         
         
     }
-    /* create VIEW newpharmacie as 
+    /*  
+create view newpharmacie as 
 SELECT `pharmacie`.`nom` AS `nompharmacie` ,`pharmacie`.`tel`,`pharmacie`.`type`,`pharmacie`.`id`,`adresses`.`numero`,`adresses`.`rue`,`adresses`.`cite`,`localite`.`nom` AS `nomlocalite`,`localite`.`CodePostal`,`gouvernorat`.`nom` AS `nomgouvernorat`,`infosupplimentaire`.`specialite`,`infosupplimentaire`.`information`,`coordonneegps`.`longitude`,`coordonneegps`.`lattitude` FROM pharmacie
 LEFT JOIN `pharmacie_db`.`adresses` ON `pharmacie`.`adresse_id` = `adresses`.`id` 
 LEFT JOIN `pharmacie_db`.`coordonneegps` ON `pharmacie`.`coordonneegps_id` = `coordonneegps`.`id` 
 LEFT JOIN `pharmacie_db`.`infosupplimentaire` ON `pharmacie`.`infosuppliementaire_id` = `infosupplimentaire`.`id` 
-LEFT JOIN `pharmacie_db`.`localite` ON `coordonneegps`.`id` = `localite`.`coordonnegps_id` 
+LEFT JOIN `pharmacie_db`.`localite` ON `adresses`.`localite_id` = `localite`.`id` 
 LEFT JOIN `pharmacie_db`.`gouvernorat` ON `localite`.`gouvernorat_id` = `gouvernorat`.`id` 
      * 
      */
     
-    function view() {
+    function viewpharmacie() {
         
         $crud = new Grocery_CRUD();
         $crud->set_table("newpharmacie");
         //$crud->set_theme('twitter-bootstrap');
-        $crud->set_crud_url_path(site_url("crud/view"));
-        $crud->set_subject("Pharmacie");
+        $crud->set_crud_url_path(site_url("crud/viewpharmacie"));
+        $crud->set_subject("Pharmacie");        
         $crud->set_primary_key("id");                        
-        $crud->columns('nompharmacie', 'tel','type','specialite','information','numero','rue','nomlocalite','CodePostal','nomgouvernorat');
+        $crud->columns('nompharmacie', 'tel','type','specialite','rue','nomlocalite','CodePostal','nomgouvernorat');
         $crud->display_as("nompharmacie", "Pharmacien");
         $crud->display_as("nomlocalite", "Localite");
         $crud->display_as("nomgouvernorat", "Gouvernorat");
         $crud->display_as("tel" , "Telephone");
         //$crud->required_fields('nompharmacie', 'tel','type','specialite','information','numero','rue' ,'cite','nomlocalite');
-        $crud->fields('nompharmacie', 'tel','type','specialite','information','numero','rue' ,'cite','nomlocalite');
+        $crud->fields('id','nompharmacie', 'tel','type','specialite','information','numero','rue' ,'cite','nomlocalite');
         $crud->field_type('type','enum',array ('jour' => 'Jour' , 'nuit' => 'Nuit'));
         $crud->field_type('numero','integer');        
+        $crud->field_type('tel','integer');        
+        $crud->field_type('id', 'hidden');
         $list_localite = array();                
         $repo = $this->em->getRepository('Entity\Localite')->findAll();                
         foreach ($repo as $key => $value) {                        
@@ -184,6 +187,8 @@ LEFT JOIN `pharmacie_db`.`gouvernorat` ON `localite`.`gouvernorat_id` = `gouvern
         }         
         $crud->field_type('nomlocalite','dropdown',$list_localite );        
         $crud->callback_insert(array($this,'newpharmacie_insert_callback')); 
+        $crud->callback_update(array($this,'newpharmacie_update_callback')); 
+        $crud->callback_delete(array($this,'newpharmacie_delete_callback'));
         $output = $crud->render();                                    
         $this->_example_output($output);        
     }
@@ -196,31 +201,78 @@ LEFT JOIN `pharmacie_db`.`gouvernorat` ON `localite`.`gouvernorat_id` = `gouvern
         $nPharmacie->setType($post_array['type']);
         $nAdresse = new Entity\Adresse();
         $nAdresse->setCite($post_array['cite']);
-        $nAdresse->setNumero($post_array['numero']);
-        $nAdresse->setRue($post_array['rue']);        
-        $nAdresse->setLocalite();
-        $nPharmacie=$nPharmacie->setAdresse($nAdresse);
+        $nAdresse->setNumero($post_array['numero']);        
+        $nAdresse->setRue($post_array['rue']);          
+        $localite = $this->em->find('Entity\Localite',$post_array['nomlocalite']);
+        $nAdresse->setLocalite($localite);
+        $nPharmacie->setAdresse($nAdresse);
         $ninfo = new Entity\InfoSupplimentaire();
         $ninfo->setSpecialite($post_array['specialite']);
-        $ninfo->setInformation( var_export($this->em->find('Entity\Localite',$post_array['nomlocalite']), TRUE) ) ;
-        $nPharmacie= $nPharmacie->setInfosuppliementaire($ninfo);
+        $ninfo->setInformation( $post_array['information'] ) ;
+        $nPharmacie->setInfosuppliementaire($ninfo);
         $this->em->persist($ninfo);
         $this->em->persist($nAdresse);        
-        $this->em->persist($nPharmacie);
-        
-        $this->em->flush();
-        return ;
+        $this->em->persist($nPharmacie);            
+        return $this->em->flush();
         
     }
+    function newpharmacie_update_callback($post_array){
+          
+        $nPharmacie  = $this->em->find('Entity\Pharmacie',$post_array['id']);
+        $nPharmacie->setNom($post_array['nompharmacie']);
+        $nPharmacie->setTel($post_array['tel']);
+        $nPharmacie->setType($post_array['type']);
+        $nAdresse = $nPharmacie->getAdresse();
+        $nAdresse->setCite($post_array['cite']);
+        $nAdresse->setNumero($post_array['numero']);        
+        $nAdresse->setRue($post_array['rue']);          
+        $localite = $this->em->find('Entity\Localite',$post_array['nomlocalite']);
+        $nAdresse->setLocalite($localite);
+        $nPharmacie->setAdresse($nAdresse);        
+        $ninfo = $nPharmacie->getInfosuppliementaire();
+        $ninfo->setSpecialite($post_array['specialite']);
+        $ninfo->setInformation( $post_array['information'] ) ;
+        $nPharmacie->setInfosuppliementaire($ninfo);
+        $this->em->persist($ninfo);
+        $this->em->persist($nAdresse);        
+        $this->em->persist($nPharmacie);                
+        return $this->em->flush();
+        
+    }
+    function newpharmacie_delete_callback($primary){
+                               
+        $nPharmacie  = new Entity\Pharmacie();
+        $nPharmacie= $this->em->find('Entity\Pharmacie',$primary);
+        foreach ($nPharmacie->getGardes() as $grd) {
+            $this->em->remove($grd);
+        }
+        $ninfo = $nPharmacie->getInfosuppliementaire();
+        $nAdresse = $nPharmacie->getAdresse();
+        $this->em->remove($ninfo);
+        $this->em->remove($nAdresse);        
+        $this->em->remove($nPharmacie);        
+        return $this->em->flush();
+        
+    }
+    
+    
 
     public function  addCoordonneeGPS (){
         
-        $local =new Entity\CoordonneeGPS;
-        $local->setLattitude(time());
-        $local->setLongitude(time());
-        $this->em->persist($local);
-        $this->em->flush();
-        echo("CoordonneeGPS saved ");
+//        $local =new Entity\CoordonneeGPS;
+//        $local->setLattitude(time());
+//        $local->setLongitude(time());
+//        $this->em->persist($local);
+//        $this->em->flush();
+       $primary = 8 ; 
+        $nPharmacie  = new Entity\Pharmacie();
+        $nPharmacie= $this->em->find('Entity\Pharmacie',$primary);
+        foreach ($nPharmacie->getGardes() as $grd) {
+            $this->em->remove($grd);
+        }
+        
+       
+
         
         
     }               

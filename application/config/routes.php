@@ -39,16 +39,16 @@
 */
 //  $route['url'] = "controller/method/argument";
 
-$route['default_controller'] = "crud/view";
+$route['default_controller'] = "crud/viewpharmacie";
 $route['404_override'] = '';
 
-$route ['list'] = 'TestGrocery/pharmacie';
+//$route ['list'] = 'TestGrocery/pharmacie';
 
-$route ['crud/pharmacie'] = "crud/pharmacie";
+$route ['crud/pharmacie'] = "crud/viewpharmacie";
 $route ['map'] = "map";
 //$route ['pharmacie/(:any)'] = "crud/pharmacie/$1";
 $route ['crud/(:any)'] = "crud/$1";
-
+$route ['gardes'] = "/gestiongardes/";
 
 
 /* End of file routes.php */
