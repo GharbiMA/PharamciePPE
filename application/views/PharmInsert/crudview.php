@@ -32,9 +32,7 @@ a:hover
 		<a href='<?php echo site_url('crud/gouvernorat')?>'>Gouvernerats</a> |
 		<a href='<?php echo site_url('crud/localite')?>'>Localités</a> |
 		<!--<a href='<?php echo site_url('crud/adresse')?>'> *******</a> --> | 
-                <a href='<?php echo site_url('crud/garde')?>'>Gardes</a> | 
-
-		
+                <a href='<?php echo site_url('crud/garde')?>'>Gardes</a> |   	
 	</div>
 	<div style='height:20px;'></div>  
     <div>
