@@ -52,18 +52,10 @@ class crud extends CI_Controller {
             $listegov[$value->getId()] = $value->getNom()." (".$value->getCodePostal()." )";            
         }         
         $crud->field_type('localite_id','dropdown',$listegov );
-        
-        
-        $crud->callback_add_field("map", array($this,'map_callback') );
+                        
         $output = $crud->render();                                    
         $this->_example_output($output);
-    }
-    function map_callback()
-    {           
-        
-             return '';
-    }
-    
+    }        
     
     function adresse() {
         
@@ -165,7 +157,7 @@ LEFT JOIN `pharmacie_db`.`gouvernorat` ON `localite`.`gouvernorat_id` = `gouvern
         
         $crud = new Grocery_CRUD();
         $crud->set_table("newpharmacie");
-        //$crud->set_theme('twitter-bootstrap');
+        $crud->set_theme('twitter-bootstrap');
         $crud->set_crud_url_path(site_url("crud/viewpharmacie"));
         $crud->set_subject("Pharmacie");        
         $crud->set_primary_key("id");                        
@@ -175,11 +167,14 @@ LEFT JOIN `pharmacie_db`.`gouvernorat` ON `localite`.`gouvernorat_id` = `gouvern
         $crud->display_as("nomgouvernorat", "Gouvernorat");
         $crud->display_as("tel" , "Telephone");
         //$crud->required_fields('nompharmacie', 'tel','type','specialite','information','numero','rue' ,'cite','nomlocalite');
-        $crud->fields('id','nompharmacie', 'tel','type','specialite','information','numero','rue' ,'cite','nomlocalite');
+        $crud->fields('id','nompharmacie', 'tel','type','specialite','information','numero','rue' ,'cite','nomlocalite','map', 'cord');
         $crud->field_type('type','enum',array ('jour' => 'Jour' , 'nuit' => 'Nuit'));
         $crud->field_type('numero','integer');        
         $crud->field_type('tel','integer');        
         $crud->field_type('id', 'hidden');
+        
+        $crud->callback_field('map',array($this,'map_callback'));
+        $crud->callback_field('cord',array($this,'cord_callback'));
         $list_localite = array();                
         $repo = $this->em->getRepository('Entity\Localite')->findAll();                
         foreach ($repo as $key => $value) {                        
@@ -255,6 +250,47 @@ LEFT JOIN `pharmacie_db`.`gouvernorat` ON `localite`.`gouvernorat_id` = `gouvern
         
     }
     
+    function map_callback($value = '', $primary_key = null) {
+        
+        return '<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+            <script type="text/javascript" >
+            var mapInstance;
+var marker;
+function placeMarker(location) {
+    if (marker) {
+        marker.setPosition(location);
+    } else {
+        marker = new google.maps.Marker({
+            position: location,
+            map: mapInstance
+        });
+    }
+}
+$(document).ready(function () {
+    var latlng = new google.maps.LatLng(35.5501, 9.5581);
+    var mapOptions = {
+        zoom: 7,
+        center: latlng,
+        mapTypeId: google.maps.MapTypeId.ROADMAP,
+        mapTypeControlOptions: {
+            style: google.maps.MapTypeControlStyle.DEFAULT
+        }
+    };
+    mapInstance = new google.maps.Map(document.getElementById("map"), mapOptions);
+
+    google.maps.event.addListener(mapInstance, \'click\', function (event) {
+        placeMarker(event.latLng);
+        $("#cord").val(marker.getPosition().toString());
+    });
+});
+            </script>
+                <div id="map" style="width: 500x; height: 500px"></div>';
+    }
+function cord_callback($value = '', $primary_key = null) {
+        
+        return '<input type="text" name="cord" id="cord" />';
+    }
+
     
 
     public function  addCoordonneeGPS (){
