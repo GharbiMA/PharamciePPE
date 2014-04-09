@@ -81,15 +81,52 @@ class crud extends CI_Controller {
         $crud->display_as("gouvernorat_id", "Gouvernorat");
         $crud->display_as("coordonnegps_id", "CoordonneGPS");        
         $crud->set_relation("coordonnegps_id", "coordonneegps", "({lattitude} ,{longitude})") ;
-        $crud->columns('nom','CodePostal', "gouvernorat_id");
-                
-        
-        //$crud->set_theme('datatables');
-        
-        //$crud->set_crud_url_path(site_url('pharmacie'));
+        $crud->columns( 'nom','CodePostal', "gouvernorat_id");                                    
+        $crud->fields('nom','CodePostal',"gouvernorat_id" , 'lattitude' , 'longitude','map' ,'id'); 
+        $crud->field_type('id', 'hidden');                
+        $crud->callback_field('map',array($this,'map_callback'));
+        $crud->callback_field('lattitude',array($this,'lattitude_callback'));
+        $crud->callback_field('longitude',array($this,'longitude_callback'));        
+        $crud->callback_insert(array($this,'localite_insert_callback')); 
+        $crud->callback_update(array($this,'localite_update_callback')); 
+        $crud->unset_delete();
         $output = $crud->render();                                    
         $this->_example_output($output);
     }
+    
+     function localite_insert_callback($post_array){                  
+        $localite = new Entity\Localite();        
+        $localite->setNom($post_array['nom']);
+        $localite->setCodePostal($post_array['CodePostal']);
+        $localite->setGouvernorat($this->em->find('Entity\Gouvernorat' ,$post_array['gouvernorat_id']));
+        $nCordonGPS = new Entity\CoordonneeGPS();
+        $nCordonGPS->setLattitude($post_array['lattitude']);
+        $nCordonGPS->setLongitude($post_array['longitude']);
+        $localite->setCoordonnegps($nCordonGPS);                
+        $this->em->persist($nCordonGPS);
+        $this->em->persist($localite);            
+        return $this->em->flush();
+        
+    }
+    function localite_update_callback($post_array){
+          
+        $localite =$this->em->find('Entity\Localite',$post_array['id']);
+        $localite->setNom($post_array['nom']);
+        $localite->setCodePostal($post_array['CodePostal']);
+        $localite->setGouvernorat($this->em->find('Entity\Gouvernorat' ,$post_array['gouvernorat_id']));
+        $nCordonGPS = $localite->getCoordonnegps();
+        $nCordonGPS->setLattitude($post_array['lattitude']);
+        $nCordonGPS->setLongitude($post_array['longitude']);
+        $localite->setCoordonnegps($nCordonGPS);                
+        $this->em->persist($nCordonGPS);
+        $this->em->persist($localite);            
+        return $this->em->flush();
+        
+    }   
+    
+    
+    
+    
     
     function gouvernorat() {
         
@@ -111,8 +148,7 @@ class crud extends CI_Controller {
         $crud->set_subject('Gardes');
         $crud->display_as("pharmacie_id","Pharmacie");
         $crud->set_relation("pharmacie_id", "pharmacie", "{nom} ");        
-        $crud->required_fields("date","pharmacie_id");
-        
+        $crud->required_fields("date","pharmacie_id");        
         //$crud->set_crud_url_path(site_url('pharmacie'));
         $output = $crud->render();                                    
         $this->_example_output($output);
@@ -167,14 +203,15 @@ LEFT JOIN `pharmacie_db`.`gouvernorat` ON `localite`.`gouvernorat_id` = `gouvern
         $crud->display_as("nomgouvernorat", "Gouvernorat");
         $crud->display_as("tel" , "Telephone");
         //$crud->required_fields('nompharmacie', 'tel','type','specialite','information','numero','rue' ,'cite','nomlocalite');
-        $crud->fields('id','nompharmacie', 'tel','type','specialite','information','numero','rue' ,'cite','nomlocalite','map', 'cord');
+        $crud->fields('id','nompharmacie', 'tel','type','specialite','information','numero','rue' ,'cite','nomlocalite', 'lattitude' , 'longitude','map');
         $crud->field_type('type','enum',array ('jour' => 'Jour' , 'nuit' => 'Nuit'));
         $crud->field_type('numero','integer');        
         $crud->field_type('tel','integer');        
-        $crud->field_type('id', 'hidden');
+        $crud->field_type('id', 'hidden');                
         
         $crud->callback_field('map',array($this,'map_callback'));
-        $crud->callback_field('cord',array($this,'cord_callback'));
+        $crud->callback_field('lattitude',array($this,'lattitude_callback'));
+        $crud->callback_field('longitude',array($this,'longitude_callback'));        
         $list_localite = array();                
         $repo = $this->em->getRepository('Entity\Localite')->findAll();                
         foreach ($repo as $key => $value) {                        
@@ -183,11 +220,12 @@ LEFT JOIN `pharmacie_db`.`gouvernorat` ON `localite`.`gouvernorat_id` = `gouvern
         $crud->field_type('nomlocalite','dropdown',$list_localite );        
         $crud->callback_insert(array($this,'newpharmacie_insert_callback')); 
         $crud->callback_update(array($this,'newpharmacie_update_callback')); 
-        $crud->callback_delete(array($this,'newpharmacie_delete_callback'));
+        $crud->callback_delete(array($this,'newpharmacie_delete_callback'));        
         $output = $crud->render();                                    
         $this->_example_output($output);        
     }
     
+   
     function newpharmacie_insert_callback($post_array){
           
         $nPharmacie  = new Entity\Pharmacie();
@@ -203,17 +241,23 @@ LEFT JOIN `pharmacie_db`.`gouvernorat` ON `localite`.`gouvernorat_id` = `gouvern
         $nPharmacie->setAdresse($nAdresse);
         $ninfo = new Entity\InfoSupplimentaire();
         $ninfo->setSpecialite($post_array['specialite']);
-        $ninfo->setInformation( $post_array['information'] ) ;
+        $ninfo->setInformation( $post_array['information'] ) ;        
         $nPharmacie->setInfosuppliementaire($ninfo);
+        $nCordonGPS = new Entity\CoordonneeGPS();
+        $nCordonGPS->setLattitude($post_array['lattitude']);
+        $nCordonGPS->setLongitude($post_array['longitude']);
+        $nPharmacie->setCoordonneegps($nCordonGPS);
         $this->em->persist($ninfo);
         $this->em->persist($nAdresse);        
+        $this->em->persist($nCordonGPS);
         $this->em->persist($nPharmacie);            
         return $this->em->flush();
         
     }
     function newpharmacie_update_callback($post_array){
           
-        $nPharmacie  = $this->em->find('Entity\Pharmacie',$post_array['id']);
+        //$nPharmacie = new Entity\Pharmacie();
+        $nPharmacie  = $this->em->find('Entity\Pharmacie',$post_array['id']);        
         $nPharmacie->setNom($post_array['nompharmacie']);
         $nPharmacie->setTel($post_array['tel']);
         $nPharmacie->setType($post_array['type']);
@@ -228,69 +272,82 @@ LEFT JOIN `pharmacie_db`.`gouvernorat` ON `localite`.`gouvernorat_id` = `gouvern
         $ninfo->setSpecialite($post_array['specialite']);
         $ninfo->setInformation( $post_array['information'] ) ;
         $nPharmacie->setInfosuppliementaire($ninfo);
+        $nCordonGPS = $nPharmacie->getCoordonneegps();
+        $nCordonGPS->setLattitude($post_array['lattitude']);
+        $nCordonGPS->setLongitude($post_array['longitude']);        
         $this->em->persist($ninfo);
         $this->em->persist($nAdresse);        
+        $this->em->persist($nCordonGPS);
         $this->em->persist($nPharmacie);                
         return $this->em->flush();
         
     }
     function newpharmacie_delete_callback($primary){
                                
-        $nPharmacie  = new Entity\Pharmacie();
+        //$nPharmacie  = new Entity\Pharmacie();
         $nPharmacie= $this->em->find('Entity\Pharmacie',$primary);
         foreach ($nPharmacie->getGardes() as $grd) {
             $this->em->remove($grd);
         }
         $ninfo = $nPharmacie->getInfosuppliementaire();
         $nAdresse = $nPharmacie->getAdresse();
+        $nCordonGPS = $nPharmacie->getCoordonneegps();
         $this->em->remove($ninfo);
         $this->em->remove($nAdresse);        
-        $this->em->remove($nPharmacie);        
+        $this->em->remove($nCordonGPS);
+        $this->em->remove($nPharmacie);                
         return $this->em->flush();
         
     }
     
-    function map_callback($value = '', $primary_key = null) {
+    function map_callback($value = '' , $primary_key = null) {
         
-        return '<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+        $output =  '<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
             <script type="text/javascript" >
             var mapInstance;
-var marker;
-function placeMarker(location) {
-    if (marker) {
-        marker.setPosition(location);
-    } else {
-        marker = new google.maps.Marker({
-            position: location,
-            map: mapInstance
-        });
-    }
-}
-$(document).ready(function () {
-    var latlng = new google.maps.LatLng(35.5501, 9.5581);
-    var mapOptions = {
-        zoom: 7,
-        center: latlng,
-        mapTypeId: google.maps.MapTypeId.ROADMAP,
-        mapTypeControlOptions: {
-            style: google.maps.MapTypeControlStyle.DEFAULT
-        }
-    };
-    mapInstance = new google.maps.Map(document.getElementById("map"), mapOptions);
-
-    google.maps.event.addListener(mapInstance, \'click\', function (event) {
-        placeMarker(event.latLng);
-        $("#cord").val(marker.getPosition().toString());
-    });
-});
+            var marker;
+            var defaultlocation;
+            $(document).ready(function () {
+            var latlng = new google.maps.LatLng('.
+            ($primary_key == NULL? '34.29837094826205, 9.743591286242008' : '$("#lattitude").val(),$("#longitude").val()' ).');
+            var mapOptions = {
+                    zoom: '. ($primary_key == NULL? '7' : '17' ) .',
+                    center: latlng,
+                    mapTypeId: google.maps.MapTypeId.ROADMAP,
+                    mapTypeControlOptions: {
+                    style: google.maps.MapTypeControlStyle.DEFAULT
+                    }
+            };
+            mapInstance = new google.maps.Map(document.getElementById("map"), mapOptions);
+            google.maps.event.addListener(mapInstance, \'click\' , function (event) {
+                if (marker) {
+                    marker.setPosition(event.latLng);
+                } else {
+                    marker = new google.maps.Marker({
+                                            position: event.latLng,
+                                            map: mapInstance
+                                            });
+                        }
+                $("#lattitude").val(marker.getPosition().lat());
+                $("#longitude").val(marker.getPosition().lng());           
+            });
+            defaultlocation = new google.maps.LatLng($("#lattitude").val(),$("#longitude").val() );
+            marker = new google.maps.Marker({
+                                position: defaultlocation,
+                                map: mapInstance });   
+                                });          
             </script>
-                <div id="map" style="width: 500x; height: 500px"></div>';
+            <div id="map" style="width: 500px; height: 700px; border: 1px #000 solid;"></div>';
+        return $output;
     }
-function cord_callback($value = '', $primary_key = null) {
-        
-        return '<input type="text" name="cord" id="cord" />';
-    }
+        function lattitude_callback($value = '', $primary_key = null) {
 
+                return '<input type="text" name="lattitude" value="'.$value.'"  id="lattitude" />';
+        }
+        function longitude_callback($value = '', $primary_key = null) {
+
+                return '<input type="text" name="longitude" value="'.$value.'"  id="longitude" />';
+        }
     
 
     public function  addCoordonneeGPS (){
