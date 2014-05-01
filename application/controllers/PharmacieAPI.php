@@ -43,7 +43,50 @@ class PharmacieAPI extends REST_Controller {
             $this->response($argument);
     }    
 
+    /**
+     * This method returns a list of pharmacies for a specific localite 
+     * 
+     */
+    public function findbyCodeLocalite_post($CodePostallocalite){
+        $local = new \Entity\Localite();
+        $local =$this->em->getRepository('Entity\Localite')->findOneBy(array( 'CodePostal' => $CodePostallocalite  ));
+        if ($local === null) {            
+            $this->response ( "No localite found.\n" , 404 ) ;
+            exit(1);
+            
+        }else {
+//            $pharmaciebylocalite = $lo->getPharmacies();
+            $this->response($local->getNom() , 200);
+        }
+          
+    }
     
+    /**
+     * This method returns a list of pharmacies for a specific localite by its name 
+     * 
+     */
+    public function findbyNomLocalite_post($Nomlocalite){
+        $local = new \Entity\Localite();
+        $local =$this->em->getRepository('Entity\Localite')->findOneBy(array( 'nom' => $Nomlocalite) );
+        if ($local === null) {            
+            $this->response ( "No localite found.\n" , 404 ) ;
+            exit(1);
+            
+        }else {
+           $result = array ();
+           $Adressespharmaciebylocalite = $local->getPharmacies();
+           foreach ($Adressespharmaciebylocalite as $value) {
+                $result[] = array( 'NomPharmacien' => $value->getPharmacie()->getNom() ,
+                                    'telephone' => $value->getPharmacie()->getTel() ,
+                                    'GPS' => '('.$value->getPharmacie()->getCoordonneegps()->getLongitude().','.
+                                                 $value->getPharmacie()->getCoordonneegps()->getLattitude() .')',
+                                );
+           }
+            $this->response($result , 200);
+        }
+          
+    }
+
 
     /**
      *  @return Pharmacie full  details 
@@ -51,32 +94,29 @@ class PharmacieAPI extends REST_Controller {
      */
     public function detail_post($argument){
         $pharmacie = new Entity\Pharmacie();        
-//        $ad = new Entity\Adresse();     $ad->getCite()
         $pharmacie=$this->em->find('Entity\Pharmacie', $argument);        
         if ($pharmacie === null) {
             $this->response ( "No Pharmacie found.\n" , 404 ) ;
             exit(1);
-        }else {                
-        $result= array();                                 
+        }else {                        
                  $result = array(                     
                      'NomPharmacien' => $pharmacie->getNom(),
                      'Telephone' => $pharmacie->getTel(),
-                     'GPS' => array( 'long,lat' => 
-                                     $pharmacie->getCoordonneegps()->getLongitude().','
-                                    . $pharmacie->getCoordonneegps()->getLattitude() ) ,
+                     'GPS' => array( 'long,lat' => $pharmacie->getCoordonneegps()->getLongitude().','. $pharmacie->getCoordonneegps()->getLattitude() ) ,
                      'type' => $pharmacie->getType(),
                      'adresse' => array ( 'Numero' =>$pharmacie->getAdresse()->getNumero() ,
                                             'Rue' => $pharmacie->getAdresse()->getRue() ,
-                                            'Cite' =>$pharmacie->getAdresse()->getCite()                                            
+                                            'Cite' =>$pharmacie->getAdresse()->getCite(),
+                                            'Localite' => array( "localite" => $pharmacie->getAdresse()->getLocalite()->getNom(),
+                                                                 "CodePostal" => $pharmacie->getAdresse()->getLocalite()->getCodePostal()),
+                                            'Gouvernorat' => $pharmacie->getAdresse()->getLocalite()->getGouvernorat()->getNom(),
                                         ),
+                     'Specielite' => $pharmacie->getInfosuppliementaire()->getSpecialite(),
+                     'texte' => $pharmacie->getInfosuppliementaire()->getInformation()
                  );
         $this->response($result);
         }
-    }
-    
-    
-    
-    
+    }           
     /**
      * This method returns the ids of all pharmacies 
      */
@@ -108,8 +148,11 @@ class PharmacieAPI extends REST_Controller {
             $result = array();
             $value =  new Entity\Garde();
             $gardlist = $pharmacie->getGardes();
-            foreach ($gardlist as $value) {
-                $result[] = $value->getDate();
+            $now = new DateTime();
+            foreach ($gardlist as $value) { 
+                if ( intval($now->diff($value->getDate())->format('%R%a')) >= 0 ) {
+                    $result [] =$value->getDate();                
+                }
             }
             $this->response($result);
         }        

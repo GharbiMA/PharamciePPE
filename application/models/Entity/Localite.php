@@ -94,6 +94,7 @@ class Localite
      *
      * @return string 
      */
+    
     public function getNom()
     {
         return $this->nom;
