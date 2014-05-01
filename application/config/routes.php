@@ -49,7 +49,8 @@ $route ['map'] = "map";
 //$route ['pharmacie/(:any)'] = "crud/pharmacie/$1";
 $route ['crud/(:any)'] = "crud/$1";
 $route ['gardes'] = "/gestiongardes/";
-
+$route ['api'] = 'PharmacieAPI/index';
+$route ['api/(:any)'] = 'PharmacieAPI/$1';
 
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */

@@ -210,8 +210,8 @@ LEFT JOIN `pharmacie_db`.`gouvernorat` ON `localite`.`gouvernorat_id` = `gouvern
         $crud->field_type('id', 'hidden');                
         
         $crud->callback_field('map',array($this,'map_callback'));
-        $crud->callback_field('lattitude',array($this,'lattitude_callback'));
-        $crud->callback_field('longitude',array($this,'longitude_callback'));        
+        $crud->callback_field('lattitude',  array($this,'lattitude_callback'));
+        $crud->callback_field('longitude' ,  array($this,'longitude_callback'));        
         $list_localite = array();                
         $repo = $this->em->getRepository('Entity\Localite')->findAll();                
         foreach ($repo as $key => $value) {                        
