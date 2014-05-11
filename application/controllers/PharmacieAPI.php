@@ -47,7 +47,7 @@ class PharmacieAPI extends REST_Controller {
      * This method returns a list of pharmacies for a specific localite 
      * 
      */
-    public function findbyCodeLocalite_post($CodePostallocalite){
+    public function findpharmaciebyCodeLocalite_post($CodePostallocalite){
         $local = new \Entity\Localite();
         $local =$this->em->getRepository('Entity\Localite')->findOneBy(array( 'CodePostal' => $CodePostallocalite  ));
         if ($local === null) {            
@@ -55,8 +55,16 @@ class PharmacieAPI extends REST_Controller {
             exit(1);
             
         }else {
-//            $pharmaciebylocalite = $lo->getPharmacies();
-            $this->response($local->getNom() , 200);
+            $result = array ();
+           $Adressespharmaciebylocalite = $local->getPharmacies();
+           foreach ($Adressespharmaciebylocalite as $value) {
+                $result[] = array( 'NomPharmacien' => $value->getPharmacie()->getNom() ,
+                                    'telephone' => $value->getPharmacie()->getTel() ,
+                                    'GPS' => '('.$value->getPharmacie()->getCoordonneegps()->getLongitude().','.
+                                                 $value->getPharmacie()->getCoordonneegps()->getLattitude() .')',
+                                );
+           }
+            $this->response($result , 200);
         }
           
     }
@@ -70,8 +78,7 @@ class PharmacieAPI extends REST_Controller {
         $local =$this->em->getRepository('Entity\Localite')->findOneBy(array( 'nom' => $Nomlocalite) );
         if ($local === null) {            
             $this->response ( "No localite found.\n" , 404 ) ;
-            exit(1);
-            
+            exit(1);            
         }else {
            $result = array ();
            $Adressespharmaciebylocalite = $local->getPharmacies();
@@ -83,8 +90,32 @@ class PharmacieAPI extends REST_Controller {
                                 );
            }
             $this->response($result , 200);
-        }
-          
+        }          
+    }
+    /**
+     * This method returns a list of pharmacies for a specific Gouvernorat by its name 
+     * 
+     */
+    public function findbyGouvernorat_post($NomGouvernorat){
+        $local = new \Entity\Gouvernorat();
+        $local =$this->em->getRepository('Entity\Gouvernorat')->findOneBy(array( 'nom' => $NomGouvernorat) );
+        if ($local === null) {            
+            $this->response ( "No Gouvernorat found.\n" , 404 ) ;
+            exit(1);            
+        }else {
+           $result = array ();
+           $AdressespharmaciebyGov = $local->getLocalites();
+           foreach ($AdressespharmaciebyGov  as $Adressespharmaciebylocalite) {                         
+                foreach ($Adressespharmaciebylocalite as $value) {
+                    $result[$Adressespharmaciebylocalite->getNom] = array( 'NomPharmacien' => $value->getPharmacie()->getNom() ,
+                                         'telephone' => $value->getPharmacie()->getTel() ,
+                                         'GPS' => '('.$value->getPharmacie()->getCoordonneegps()->getLongitude().','.
+                                                      $value->getPharmacie()->getCoordonneegps()->getLattitude() .')',
+                                     );
+                }
+           }
+            $this->response($result , 200);
+        }          
     }
 
 
@@ -138,7 +169,7 @@ class PharmacieAPI extends REST_Controller {
      */
     
     
-    public function gardes_post($param) {
+    public function gardes_post($pharmacie) {
         $pharmacie = new Entity\Pharmacie();                
         $pharmacie=$this->em->find('Entity\Pharmacie', $param);        
         if ($pharmacie === null) {
@@ -155,7 +186,34 @@ class PharmacieAPI extends REST_Controller {
                 }
             }
             $this->response($result);
-        }        
+        }                
+    }
+    
+    public  function listegouvernerat_get(){        
+        $listegov = $this->em->getRepository('Entity\Gouvernorat')->findAll();
+        $response=array();
+        foreach ($listegov as $gov ){
+            $response[$gov->getId()] = $gov->getNom();            
+        }
+        $this->response($response);
+    }
+    
+    
+    public function getlocalitesbygouvernorat_post($idGov){
+        $selectedgov = new Entity\Gouvernorat();
+        $localite= new Entity\Localite();
+        $selectedgov = $this->em->find('Entity\Gouvernorat',$idGov);
+        if ($selectedgov === null) {
+            $this->response ( "Wrong identifier\n" , 404 ) ;
+            exit(1);
+        }else {
+            $response = array();
+            $listelocalite = $selectedgov->getLocalites();
+            foreach ( $listelocalite as $localite){
+                $response[$localite->getCodePostal()]= $localite->getNom();
+            }
+            $this->response($response);
+        }
     }
 
 }
